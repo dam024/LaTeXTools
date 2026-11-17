@@ -18,18 +18,15 @@ At present, there is one supported method on custom plugins.
 
 import os
 import re
+
 import sublime
-import traceback
 
 from ..plugins.bibliography import *  # register internal bibliography plugins
 from .latex_fill_all import LatexFillAllPlugin
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
-from .utils import analysis
-from .utils import bibformat
+from .latextools_plugin import NoSuchPluginException, get_plugin
+from .utils import analysis, bibformat
 from .utils.cache import cache_local
-from .utils.external_command import CalledProcessError
-from .utils.external_command import check_output
+from .utils.external_command import CalledProcessError, check_output
 from .utils.logging import logger
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
@@ -156,7 +153,7 @@ NEW_STYLE_CITE_REGEX = re.compile(
                 (?:lluf|trohs)?(?:ksam)?)|
             (?:(?P<prefix10>[^{},]*)\{yrtnebib)
         )\\""",
-    re.X,
+    re.VERBOSE,
 )
 
 
@@ -174,9 +171,9 @@ def match(rex, str):
 # the absolute filepaths of the bib files
 
 # known bibliography commands
-SINGLE_BIBCOMMANDS = set(["addbibresource", "addglobalbib", "addsectionbib"])
+SINGLE_BIBCOMMANDS = {"addbibresource", "addglobalbib", "addsectionbib"}
 
-MULTI_BIBCOMMANDS = set(["bibliography", "nobibliography"])
+MULTI_BIBCOMMANDS = {"bibliography", "nobibliography"}
 
 
 # filter for find_bib_files
@@ -205,9 +202,7 @@ def kpsewhich(filename, file_format=None):
         if e.output:
             logger.debug(e.output)
     except OSError as e:
-        logger.error(
-            "Could not run kpsewhich. Please ensure that your texpath " "setting is correct."
-        )
+        logger.error("Could not run kpsewhich. Please ensure that your texpath setting is correct.")
         logger.debug(e)
 
     return None
@@ -223,7 +218,7 @@ def find_bib_files(root):
         # load the analysis
         doc = analysis.get_analysis(root)
         if not doc:
-            return tuple()
+            return ()
         # we use ALL_COMMANDS here as any flag will filter some command
         # we want to support
         flags = analysis.ALL_COMMANDS | analysis.ONLY_COMMANDS_WITH_ARGS
@@ -376,14 +371,14 @@ def run_plugin_command(command, *args, **kwargs):
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
-                raise e
+                raise
         except AttributeError as e:
             if f"'{command}'" in str(e):
                 error_message = f"{command} does not implement `{type(plugin).__name__}`"
                 logger.error(error_message)
                 raise BibPluginError(error_message)
             else:
-                raise e
+                raise
         except NotImplementedError:
             return None
 
@@ -412,8 +407,7 @@ def run_plugin_command(command, *args, **kwargs):
 
     if expect_result and result is None:
         raise BibPluginError(
-            f"Could not find a plugin to handle '{command}'. "
-            "See the console for more details"
+            f"Could not find a plugin to handle '{command}'. See the console for more details"
         )
 
     return result
@@ -525,9 +519,7 @@ class CiteLatexFillAllPlugin(LatexFillAllPlugin):
         display = []
         values = []
 
-        panel_format = get_setting(
-            "cite_panel_format", ["{title} ({keyword})", "{author}"], view
-        )
+        panel_format = get_setting("cite_panel_format", ["{title} ({keyword})", "{author}"], view)
         kind = (sublime.KIND_ID_TYPE, "b", "Bibliography")
 
         for c in completions:

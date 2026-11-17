@@ -1,5 +1,5 @@
 # luciole-math package
-# Matthew Bertucci 2025/07/09 for v0.50
+# Matthew Bertucci 2026/09/11 for v0.75
 
 #include:iftex
 #include:unicode-math
@@ -36,10 +36,12 @@ Scale=%<factor%>
 \gggtr#m
 \gtreqqslantless#m
 \gtreqslantless#m
+\gtrsimslant#m
 \gvertneqq#m
 \leadsto#m
 \lesseqqslantgtr#m
 \lesseqslantgtr#m
+\lesssimslant#m
 \lhd#m
 \llless#m
 \lozenge#m
@@ -48,8 +50,11 @@ Scale=%<factor%>
 \mbfdotlessj#*m
 \mbfimath#*m
 \mbfjmath#*m
+\mbfscr#*m
+\mbfscrl#*m
 \mbfvarzero#*m
 \mithbar#*m
+\mscr#*m
 \mupvarzero#*m
 \ngeqq#m
 \ngeqqslant#m
@@ -133,6 +138,7 @@ Scale=%<factor%>
 \mdwhtsquare#m
 \mscre#*m
 \mscrg#*m
+\mscrl#*m
 \mscro#*m
 \pitchfork#m
 \precapprox#m

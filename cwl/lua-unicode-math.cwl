@@ -1,5 +1,5 @@
 # lua-unicode-math package
-# Matthew Bertucci 2026/02/11 for v0.7
+# Matthew Bertucci 2026/09/16 for v0.11
 
 #include:luatex
 
@@ -7,8 +7,12 @@
 \setmathfont{font}[font features%keyvals]
 \setmathfont[font features%keyvals]{font}#S
 \setmathfont[font features%keyvals]{font}[font features%keyvals]#S
+\setmathfontversion{name}{font}
+\setmathfontversion{name}{font}[font features%keyvals]
+\setmathfontversion{name}[font features%keyvals]{font}
+\setmathfontversion{name}[font features%keyvals]{font}[font features%keyvals]
 
-#keyvals:\setmathfont#c
+#keyvals:\setmathfont#c,\setmathfontversion#c
 # copied from unicode-math.cwl
 normal-style=#ISO,TeX,french,upright,literal
 math-style=#ISO,TeX,french,upright,literal
@@ -62,6 +66,7 @@ StylisticSet=%<set number%>
 \symbfcal{text%plain}#m
 \symbffrak{text%plain}#m
 \symbfit{text%plain}#m
+\symbfscr{text%plain}#m
 \symbfsfit{text%plain}#m
 \symbfsfup{text%plain}#m
 \symbfsf{text%plain}#m
@@ -72,6 +77,7 @@ StylisticSet=%<set number%>
 \symit{text%plain}#m
 \symnormal{text%plain}#*m
 \symrm{text%plain}#m
+\symscr{text%plain}#m
 \symsfit{text%plain}#m
 \symsfup{text%plain}#m
 \symsf{text%plain}#m

@@ -1,5 +1,5 @@
 # tagpdf package
-# Matthew Bertucci 2026/01/31 for v0.99y
+# Matthew Bertucci 2026/09/21 for v1.0f
 
 #include:pdfmanagement
 
@@ -21,7 +21,9 @@ css-list-add={%<file1,file2,...%>}
 css-list-remove={%<file1,file2,...%>}
 role/mathml-tags#true,false
 role/new-tag=%<tag/role%>
+role/new-NS=%<name space%>
 role/new-attribute={%<name%>}{%<content%>}
+role/new-attribute*={%<name%>}{%<content%>}
 role/map-tags=#false,pdf
 debug/show
 debug/show=#para,paraOff,spaces,spacesOff
@@ -75,6 +77,9 @@ firstkid
 alt=%<text%>
 actualtext=%<text%>
 attribute={%<attr1,attr2,...%>}
+attribute*={%<attr1,attr2,...%>}
+attribute-unnamed={%<attribute contents%>}
+attribute-unnamed*={%<attribute contents%>}
 attribute-class={%<attr1,attr2,...%>}
 title=%<text%>
 title-o=%<text%>
@@ -105,10 +110,16 @@ debug/structures
 \tagpdfsuppressmarks{arg}#*
 
 # expl3 interface
+\tag_attr_new:nn {%<⟨name⟩%>} {%<⟨content⟩%>}#/%expl3
+\tag_attr_new:ee {%<⟨name⟩%>} {%<⟨content⟩%>}#/%expl3
 \tag_check_child:nnF {%<⟨tag⟩%>} {%<⟨namespace⟩%>} {%<⟨false code⟩%>}#/%expl3
 \tag_check_child:nnT {%<⟨tag⟩%>} {%<⟨namespace⟩%>} {%<⟨true code⟩%>}#/%expl3
 \tag_check_child:nnTF {%<⟨tag⟩%>} {%<⟨namespace⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
 \tag_get:n {%<⟨keyword⟩%>}#/%expl3
+\tag_get:nN {%<⟨keyword⟩%>} %<⟨tl var⟩%>#/%expl3
+\tag_get:nnN {%<⟨number⟩%>} {%<⟨keyword⟩%>} %<⟨tl var⟩%>#/%expl3
+\tag_gset_split:NNe %<⟨tl var⟩%> %<⟨tl var⟩%>#/%expl3
+\tag_gset_split:NNn %<⟨tl var⟩%> %<⟨tl var⟩%>#/%expl3
 \tag_if_active:F {%<⟨false code⟩%>}#/%expl3
 \tag_if_active:T {%<⟨true code⟩%>}#/%expl3
 \tag_if_active:TF {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
@@ -118,6 +129,22 @@ debug/structures
 \tag_if_box_tagged:NT %<⟨box⟩%> {%<⟨true code⟩%>}#/%expl3
 \tag_if_box_tagged:NTF %<⟨box⟩%> {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
 \tag_if_box_tagged_p:N %<⟨box⟩%>#/%expl3
+\tag_if_in:nF {%<⟨structure tag⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_in:nT {%<⟨structure tag⟩%>} {%<⟨true code⟩%>}#/%expl3
+\tag_if_in:nTF {%<⟨structure tag⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_NS_known:n {%<⟨NS⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_NS_known:nT {%<⟨NS⟩%>} {%<⟨true code⟩%>}#/%expl3
+\tag_if_NS_known:nTF {%<⟨NS⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_struct_exist:nF {%<⟨structure number⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_struct_exist:nT {%<⟨structure number⟩%>} {%<⟨true code⟩%>}#/%expl3
+\tag_if_struct_exist:nTF {%<⟨structure number⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_struct_exist_p:n {%<⟨structure number⟩%>}#/%expl3
+\tag_if_tag_known:n {%<⟨tag⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_tag_known:nT {%<⟨tag⟩%>} {%<⟨true code⟩%>}#/%expl3
+\tag_if_tag_known:nTF {%<⟨tag⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_tag_known:nn {%<⟨tag⟩%>} {%<⟨NS⟩%>} {%<⟨false code⟩%>}#/%expl3
+\tag_if_tag_known:nnT {%<⟨tag⟩%>} {%<⟨NS⟩%>} {%<⟨true code⟩%>}#/%expl3
+\tag_if_tag_known:nnTF {%<⟨tag⟩%>} {%<⟨NS⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
 \tag_mc_add_missing_to_stream:Nn %<⟨box⟩%> {%<⟨stream name⟩%>}#/%expl3
 \tag_mc_artifact_group_begin:n {%<⟨name⟩%>}#/%expl3
 \tag_mc_artifact_group_end:#/%expl3
@@ -132,6 +159,8 @@ debug/structures
 \tag_mc_new_stream:n {%<⟨stream name⟩%>}#/%expl3
 \tag_mc_reset_box:N %<⟨box⟩%>#/%expl3
 \tag_mc_use:n {%<⟨label⟩%>}#/%expl3
+\tag_set_split:NNe %<⟨tl var⟩%> %<⟨tl var⟩%>#/%expl3
+\tag_set_split:NNn %<⟨tl var⟩%> %<⟨tl var⟩%>#/%expl3
 \tag_spacechar_off:#/%expl3
 \tag_spacechar_on:#/%expl3
 \tag_struct_begin:n {%<⟨keyvals⟩%>}#/%expl3
@@ -140,8 +169,10 @@ debug/structures
 \tag_struct_gput:nnn {%<⟨struct number⟩%>} {%<⟨keyword⟩%>} {%<⟨value⟩%>}#/%expl3
 \tag_struct_gput_ref:nnn {%<⟨struct number⟩%>} {%<⟨keyword⟩%>} {%<⟨value⟩%>}#/%expl3
 \tag_struct_insert_annot:nn {%<⟨object ref⟩%>}{%<⟨struct parent number⟩%>}#/%expl3
+\tag_struct_map_function:N %<⟨function⟩%>#/%expl3
 \tag_struct_object_ref:e {%<⟨struct number⟩%>}#/%expl3
 \tag_struct_object_ref:n {%<⟨struct number⟩%>}#/%expl3
 \tag_struct_parent_int:#/%expl3
+\tag_struct_recordtarget:#/%expl3
 \tag_struct_use:n {%<⟨label⟩%>}#/%expl3
 \tag_struct_use_num:n {%<⟨struct number⟩%>}#/%expl3

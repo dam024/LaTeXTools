@@ -1,10 +1,11 @@
 # pas-tableur package
-# Matthew Bertucci 2024/09/14 for v2.06
+# Matthew Bertucci 2026/09/08 for v3.01
 
 #include:tikz
 #include:tikzlibrarycalc
 #include:xstring
 #include:xkeyval
+#include:customenvs-macros
 
 grayTopCell#B
 grayBottomCell#B
@@ -40,9 +41,28 @@ color=#%color
 font=%<font commands%>
 #endkeyvals
 
+\renumLine{numéro}{text}
+\renumLineSelect{numéro}{text}
+
 \selecCell{colonne}{ligne}
 \multiSelec{colonnes}{lignes}
 \multimultiSelec{ligne1}{ligne2}{ligne3}
 
-\fileversion#S
+\gentableur{colonnes}
+\gentableur{colonnes}[hauteurs]
+\gentableur[nombre de lignes]{colonnes}
+\gentableur[nombre de lignes]{colonnes}[hauteurs]
+\plagecouleur{colonne de depart-ligne de depart}{colonne finale-ligne finale}
+\plagecouleur[color]{colonne de depart-ligne de depart}{colonne finale-ligne finale}
+\plagebordures{colonne de depart-ligne de depart}{colonne finale-ligne finale}
+\plagebordures[color]{colonne de depart-ligne de depart}{colonne finale-ligne finale}
+
+\celbordures#S
+\celcouleur[opt]{arg}#S
+\celcouleur{arg}#S
+\colonnetxt#S
 \filedate#S
+\fileversion#S
+\GtblrFetchHeight{arg}#S
+\lignetxt#S
+\remplircases#S

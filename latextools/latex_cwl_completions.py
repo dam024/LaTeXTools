@@ -1,17 +1,14 @@
 from __future__ import annotations
-import os
+
 import re
 from sys import exc_info
 
 import sublime
-import sublime_plugin
 
 from .utils import analysis
-from .utils import utils
 from .utils.cache import cache_local
 from .utils.logging import logger
 from .utils.settings import get_setting
-from .utils.tex_directives import get_tex_root
 
 ALPHAS_REGEX = re.compile(r"^[a-zA-Z]+$")
 
@@ -189,9 +186,9 @@ def parse_cwl_file(
             continue
 
         if line[0] == "#":
-            if line.startswith("#keyvals") or line.startswith("#ifOption"):
+            if line.startswith(("#keyvals", "#ifOption")):
                 KEYVAL = True
-            if line.startswith("#endkeyvals") or line.startswith("#endif"):
+            if line.startswith(("#endkeyvals", "#endif")):
                 KEYVAL = False
             if line.startswith("#include:") and not KEYVAL:
                 cwl_dependencies.append(package_to_cwl(line[len("#include:") :].strip()))

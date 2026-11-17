@@ -1,18 +1,14 @@
-# -*- coding:utf-8 -*-
-import os
 import json
-
-from collections import defaultdict
-
-from functools import partial
+import os
 import threading
 import traceback
+from collections import defaultdict
+from functools import partial
 
 import sublime
 import sublime_plugin
 
-from .utils.external_command import CalledProcessError
-from .utils.external_command import check_output
+from .utils.external_command import CalledProcessError, check_output
 from .utils.logging import logger
 
 __all__ = ["LatextoolsGenPkgCacheCommand"]
@@ -20,7 +16,7 @@ __all__ = ["LatextoolsGenPkgCacheCommand"]
 
 def _get_tex_searchpath(file_type):
     if file_type is None:
-        raise Exception("file_type must be set for _get_tex_searchpath")
+        raise ValueError("file_type must be set for _get_tex_searchpath")
 
     command = ["kpsewhich"]
     command.append(f"--show-path={file_type}")
@@ -54,11 +50,13 @@ def _get_tex_searchpath(file_type):
     return None
 
 
-def _get_files_matching_extensions(paths, extensions=[]):
+def _get_files_matching_extensions(paths, extensions=None):
+    if extensions is None:
+        extensions = []
     if isinstance(extensions, str):
         extensions = [extensions]
 
-    matched_files = defaultdict(lambda: [])
+    matched_files = defaultdict(list)
 
     for path in paths.split(os.pathsep):
         # our current directory isn't usually meaningful from a WindowCommand
@@ -75,16 +73,16 @@ def _get_files_matching_extensions(paths, extensions=[]):
             for _, _, files in os.walk(path):
                 for f in files:
                     for ext in extensions:
-                        if f.endswith("".join((os.extsep, ext))):
+                        if f.endswith(f"{os.extsep}{ext}"):
                             matched_files[ext].append(os.path.splitext(f)[0])
         else:
             for _, _, files in os.walk(path):
                 for f in files:
                     matched_files["*"].append(os.path.splitext(f)[0])
 
-    matched_files = dict(
-        [(key, sorted(set(value), key=lambda s: s.lower())) for key, value in matched_files.items()]
-    )
+    matched_files = {
+        key: sorted(set(value), key=lambda s: s.lower()) for key, value in matched_files.items()
+    }
 
     return matched_files
 
@@ -123,7 +121,6 @@ def _generate_package_cache():
 # Used for fill all command for \documentclass, \usepackage and
 # \bibliographystyle envrioments
 class LatextoolsGenPkgCacheCommand(sublime_plugin.ApplicationCommand):
-
     def run(self):
         # use a separate thread to update cache
         thread = threading.Thread(target=_generate_package_cache)

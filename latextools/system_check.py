@@ -1,45 +1,39 @@
 from __future__ import annotations
-import copy
+
 import os
 import re
-import signal
 import subprocess
 import sys
 import textwrap
 import threading
 import traceback
-
+from functools import lru_cache, partial
 from io import StringIO
-from functools import lru_cache
-from functools import partial
 from shutil import which
-from typing import cast, Callable
+from typing import Callable, cast
 
 import sublime
 import sublime_plugin
 
 from .jumpto_pdf import DEFAULT_VIEWERS
-from .latextools_plugin import classname_to_plugin_name
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
+from .latextools_plugin import (
+    NoSuchPluginException,
+    classname_to_plugin_name,
+    get_plugin,
+)
+from .preview.utils import __get_gs_command as get_gs_command
+from .preview.utils import convert_installed, ghostscript_installed
 from .utils.activity_indicator import ActivityIndicator
 from .utils.distro_utils import using_miktex
 from .utils.external_command import get_texpath
 from .utils.logging import logger
-from .utils.output_directory import get_aux_directory
-from .utils.output_directory import get_jobname
-from .utils.output_directory import get_output_directory
+from .utils.output_directory import get_aux_directory, get_jobname, get_output_directory
 from .utils.settings import get_setting
 from .utils.sublime_utils import get_sublime_exe
-from .utils.tex_directives import get_tex_root
-from .utils.tex_directives import parse_tex_directives
-
-from .preview.preview_utils import convert_installed
-from .preview.preview_utils import ghostscript_installed
-from .preview.preview_utils import __get_gs_command as get_gs_command
+from .utils.tex_directives import get_tex_root, parse_tex_directives
 
 if sublime.platform() == "windows":
-    from .preview.preview_utils import get_system_root
+    from .preview.utils import get_system_root
 
 __all__ = ["LatextoolsSystemCheckCommand"]
 
@@ -76,7 +70,7 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
     # This is necessary for the syntax to work properly
     column_widths[-1] = len(table[0][-1])
     if wrap_column is not None and wrap_column > 0:
-        column_widths = [width if width <= wrap_column else wrap_column for width in column_widths]
+        column_widths = [min(width, wrap_column) for width in column_widths]
 
     headers = table.pop(0)
 
@@ -117,8 +111,12 @@ def tabulate(table, wrap_column=0, output=sys.stdout):
     output.write("\n")
 
 
-class SystemCheckThread(threading.Thread):
+@lru_cache(maxsize=64)
+def cached_which(file: str, path=None) -> str | None:
+    return which(file, path=path)
 
+
+class SystemCheckThread(threading.Thread):
     def __init__(self, view: sublime.View, on_done: Callable[[list[list]], None]):
         super().__init__()
         self.view = view
@@ -138,7 +136,7 @@ class SystemCheckThread(threading.Thread):
         if build_env is not None:
             self.env.update({k: os.path.expandvars(v) for k, v in build_env.items()})
 
-        if (texpath := get_texpath(view)) is not None:
+        if texpath := get_texpath(view):
             self.env["PATH"] = texpath
 
         # prepand main tex document's location to all TeX related paths such as
@@ -236,17 +234,20 @@ class SystemCheckThread(threading.Thread):
             # convert.exe on Windows can refer to %systemroot%\convert.exe,
             # which should not be used; in that case, simple report magick.exe
             # as not existing
-            if program == "convert" and self.platform == "windows":
-                if os.path.samefile(location, os.path.join(get_system_root(), "convert.exe")):
-                    program = "magick"
-                    location = None
+            if (
+                program == "convert"
+                and self.platform == "windows"
+                and os.path.samefile(location, os.path.join(get_system_root(), "convert.exe"))
+            ):
+                program = "magick"
+                location = None
 
             available = location is not None
 
             if available:
                 basename, extension = os.path.splitext(location)
                 if extension is not None:
-                    location = "".join((basename, extension.lower()))
+                    location = f"{basename}{extension.lower()}"
 
             version_info = self.get_version_info(location) if available else None
 
@@ -272,7 +273,7 @@ class SystemCheckThread(threading.Thread):
         if available:
             basename, extension = os.path.splitext(location)
             if extension is not None:
-                location = "".join((basename, extension.lower()))
+                location = f"{basename}{extension.lower()}"
 
         version_info = self.get_version_info(location) if available else None
 
@@ -300,7 +301,6 @@ class SystemCheckThread(threading.Thread):
             and get_setting("preview_math_template_file", view=self.view) is None
             and get_setting("preview_math_mode", view=self.view) != "none"
         ):
-
             find_package_re = re.compile(r"\\usepackage(?:\[[^\]]*\])?\{(?P<pkg>[^\}]*)\}")
 
             packages = ["standalone.cls", "preview.sty", "xcolor.sty"]
@@ -425,7 +425,7 @@ class SystemCheckThread(threading.Thread):
                             [
                                 "osascript",
                                 "-e",
-                                "POSIX path of " '(path to app id "com.apple.Preview")',
+                                'POSIX path of (path to app id "com.apple.Preview")',
                             ]
                         )
                     except subprocess.CalledProcessError:
@@ -441,7 +441,7 @@ class SystemCheckThread(threading.Thread):
                             [
                                 "osascript",
                                 "-e",
-                                "POSIX path of " '(path to app id "net.sourceforge.skim-app.skim")',
+                                'POSIX path of (path to app id "net.sourceforge.skim-app.skim")',
                             ]
                         )
                     except subprocess.CalledProcessError:
@@ -491,16 +491,25 @@ class SystemCheckThread(threading.Thread):
 
         logger.debug("Executing %s...", cmd)
 
-        result = subprocess.run(
-            cmd,
-            env=self.env,
-            encoding="utf-8",
-            shell=self.platform == "windows",
-            stderr=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            timeout=30,
-            universal_newlines=True,
-        )
+        try:
+            result = subprocess.run(
+                cmd,
+                check=False,
+                env=self.env,
+                encoding="utf-8",
+                shell=self.platform == "windows",
+                stderr=subprocess.DEVNULL,
+                stdout=subprocess.PIPE,
+                timeout=30,
+                text=True,
+            )
+        except subprocess.TimeoutExpired:
+            logger.error("Timeout while executing %s", cmd)
+            return None
+        except subprocess.SubprocessError as exc:
+            logger.error(exc)
+            return None
+
         return result.stdout if result.returncode == 0 else None
 
     def get_version_info(self, executable: str) -> str | None:
@@ -539,13 +548,11 @@ class SystemCheckThread(threading.Thread):
     def kpsewhich(self, file: str) -> str | None:
         return self.check_output(["kpsewhich", file])
 
-    @lru_cache(maxsize=64)
     def which(self, file: str) -> str | None:
-        return which(file, path=self.env.get("PATH"))
+        return cached_which(file, path=self.env.get("PATH"))
 
 
 class LatextoolsSystemCheckCommand(sublime_plugin.ApplicationCommand):
-
     def run(self) -> None:
         window = sublime.active_window() or sublime.windows()[0]
         view = window.active_view() or window.views()[0]

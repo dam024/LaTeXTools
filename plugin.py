@@ -12,28 +12,18 @@ globals().pop("module_name", None)
 del globals()["prefix"]
 
 from .latextools.auto_label import (
-    LatextoolsAutoInsertLabelCommand,
     LatextoolsAutoInserLabelListener,
+    LatextoolsAutoInsertLabelCommand,
 )
-from .latextools.biblatex_crossref_completions import (
-    BiblatexCrossrefCompletions
-)
-from .latextools.biblatex_field_name_completions import (
-    FieldNameCompletions
-)
-from .latextools.biblatex_name_completions import (
-    BiblatexNameCompletions
-)
-from .latextools.biblatex_syntax_listener import (
-    BibLaTeXSyntaxListener
-)
+from .latextools.biblatex_crossref_completions import BiblatexCrossrefCompletions
+from .latextools.biblatex_field_name_completions import FieldNameCompletions
+from .latextools.biblatex_name_completions import BiblatexNameCompletions
+from .latextools.biblatex_syntax_listener import BibLaTeXSyntaxListener
 from .latextools.change_environment import (
     LatextoolsChangeEnvironmentCommand,
     LatextoolsToggleEnvironmentStarCommand,
 )
-from .latextools.context_provider import (
-    LatextoolsContextListener
-)
+from .latextools.context_provider import LatextoolsContextListener
 from .latextools.delete_temp_files import (
     LatextoolsClearCacheCommand,
     LatextoolsClearLocalCacheCommand,
@@ -41,120 +31,90 @@ from .latextools.delete_temp_files import (
 )
 from .latextools.detect_spellcheck import (
     LatextoolsAutoDetectSpellcheckListener,
-    LatextoolsDetectSpellcheckCommand
+    LatextoolsDetectSpellcheckCommand,
 )
 from .latextools.jumpto_anywhere import (
+    LatextoolsJumptoAnywhereByMouseCommand,
     LatextoolsJumptoAnywhereCommand,
-    LatextoolsJumptoAnywhereByMouseCommand
 )
 from .latextools.jumpto_pdf import (
     LatextoolsJumptoPdfCommand,
     LatextoolsViewPdfCommand,
 )
-from .latextools.jumpto_tex_file import (
-    LatextoolsJumptoFileCommand
-)
-from .latextools.latex_command import (
-    LatextoolsLatexCmdCommand
-)
-from .latextools.latex_command_completions import (
-    LatexCmdCompletion
-)
-from .latextools.latex_directive_completions import (
-    LatexDirectiveCompletion
-)
+from .latextools.jumpto_tex_file import LatextoolsJumptoFileCommand
+from .latextools.latex_command import LatextoolsLatexCmdCommand
+from .latextools.latex_command_completions import LatexCmdCompletion
+from .latextools.latex_directive_completions import LatexDirectiveCompletion
 from .latextools.latex_doc_viewer import (
     LatextoolsPkgDocCommand,
-    LatextoolsViewDocCommand
+    LatextoolsViewDocCommand,
 )
-from .latextools.latex_env import (
-    LatextoolsLatexEnvCommand
-)
-from .latextools.latex_env_closer import (
-    LatextoolsLatexEnvCloserCommand
-)
+from .latextools.latex_env import LatextoolsLatexEnvCommand
+from .latextools.latex_env_closer import LatextoolsLatexEnvCloserCommand
 from .latextools.latex_fill_all import (
     LatexFillAllEventListener,
     LatextoolsFillAllCommand,
     LatexToolsFillAllCompleteBracket,
-    LatexToolsReplaceWord
+    LatexToolsReplaceWord,
 )
-from .latextools.latex_installed_packages import (
-    LatextoolsGenPkgCacheCommand
-)
+from .latextools.latex_installed_packages import LatextoolsGenPkgCacheCommand
 from .latextools.latextools_cache_listener import (
-    LatextoolsCacheUpdateListener,
     LatextoolsAnalysisUpdateCommand,
     LatextoolsBibcacheUpdateCommand,
+    LatextoolsCacheUpdateListener,
 )
 from .latextools.make_pdf import (
-    LatextoolsMakePdfCommand,
     LatextoolsExecEventListener,
+    LatextoolsMakePdfCommand,
 )
-from .latextools.reset_settings import (
-    LatextoolsResetSettingsCommand
-)
-from .latextools.preview import (
+from .latextools.preview.image import (
     ImagePreviewHoverListener,
-    PreviewPhantomListener
+    ImagePreviewPhantomListener,
 )
+from .latextools.preview.math import MathPreviewPhantomListener
+from .latextools.reset_settings import LatextoolsResetSettingsCommand
 from .latextools.reveal_folders import (
     LatextoolsRevealAuxDirectoryCommand,
     LatextoolsRevealOutputDirectoryCommand,
-    LatextoolsRevealTexRootDirectoryCommand
+    LatextoolsRevealTexRootDirectoryCommand,
 )
 from .latextools.search_commands import (
     LatextoolsSearchCommandCommand,
-    LatextoolsSearchCommandInputCommand
+    LatextoolsSearchCommandInputCommand,
 )
 from .latextools.smart_paste import (
     LatextoolsDownloadInsertImageHelperCommand,
-    LatextoolsSmartPasteCommand
+    LatextoolsSmartPasteCommand,
 )
-from .latextools.system_check import (
-    LatextoolsSystemCheckCommand
-)
-from .latextools.tex_count import (
-    LatextoolsTexcountCommand
-)
-from .latextools.tex_syntax_listener import (
-    TeXSyntaxListener
-)
+from .latextools.system_check import LatextoolsSystemCheckCommand
+from .latextools.tex_count import LatextoolsTexcountCommand
+from .latextools.tex_syntax_listener import TeXSyntaxListener
 from .latextools.toc_quickpanel import (
     LatextoolsTocQuickpanelCommand,
-    LatextoolsTocQuickpanelContext
+    LatextoolsTocQuickpanelContext,
 )
-from .latextools.toggle_settings import (
-    LatextoolsToggleKeysCommand
-)
-from .latextools.utils.tex_log import (
-    LatextoolsDumpTexLog
-)
-
+from .latextools.toggle_settings import LatextoolsToggleKeysCommand
+from .latextools.utils.tex_log import LatextoolsDumpTexLog
 from .plugins.viewer.dbus_viewer import LatextoolsDbusViewerListener
 
 
 def plugin_loaded():
     from .latextools.utils.logging import init_logger
+
     init_logger()
 
     prefix = __spec__.parent + "."
     for name, module in sys.modules.items():
-        if (
-            name.startswith(prefix) 
-            and hasattr(module, "latextools_plugin_loaded")
-        ):
+        if name.startswith(prefix) and hasattr(module, "latextools_plugin_loaded"):
             module.latextools_plugin_loaded()
 
 
 def plugin_unloaded():
     prefix = __spec__.parent + "."
     for name, module in sys.modules.items():
-        if (
-            name.startswith(prefix) 
-            and hasattr(module, "latextools_plugin_unloaded")
-        ):
+        if name.startswith(prefix) and hasattr(module, "latextools_plugin_unloaded"):
             module.latextools_plugin_unloaded()
 
     from .latextools.utils.logging import shutdown_logger
+
     shutdown_logger()

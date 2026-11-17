@@ -1,15 +1,13 @@
 from __future__ import annotations
+
 import os
 import re
-import sublime
-
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .pdf_builder import Command, CommandGenerator, CommandLine
+    from .pdf_builder import CommandGenerator
 
 from ...latextools.utils.logging import logger
-
 from .pdf_builder import PdfBuilder
 
 __all__ = ["BasicBuilder"]
@@ -21,13 +19,13 @@ CITATIONS_REGEX = re.compile(
     (?: Citation\s+[`'].+'\s+(?:on\s+page\s+\d+\s+)?undefined
     | Empty\s+bibliography\s )
     """,
-    re.M | re.X,
+    re.MULTILINE | re.VERBOSE,
 )
 # Capture which program to run for BibLaTeX
 BIBLATEX_REGEX = re.compile(r"Package biblatex Warning: Please \(re\)run (\S*)")
 # Used to indicate a subdirectory that needs to be made for a file input using
 # \include
-FILE_WRITE_ERROR_REGEX = re.compile(r"! I can't write on file `(.*)/([^/']*)'", re.M)
+FILE_WRITE_ERROR_REGEX = re.compile(r"! I can't write on file `(.*)/([^/']*)'", re.MULTILINE)
 
 
 class BasicBuilder(PdfBuilder):
@@ -67,9 +65,7 @@ class BasicBuilder(PdfBuilder):
         if self.job_name and self.job_name != self.base_name:
             latex.append(f"--jobname={self.job_name}")
 
-        for option in self.options:
-            latex.append(option)
-
+        latex.extend(self.options)
         latex.append(self.tex_name)
 
         # Initial pdflatex run may fail, if required diretories are not yet present

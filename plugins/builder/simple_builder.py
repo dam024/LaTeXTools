@@ -1,6 +1,6 @@
 from __future__ import annotations
-import re
 
+import re
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -18,6 +18,7 @@ class SimpleBuilder(PdfBuilder):
     Just call a bunch of commands in sequence
     Demonstrate basics
     """
+
     name = "Simple Builder"
 
     def commands(self) -> CommandGenerator:

@@ -1,14 +1,13 @@
 import operator as opi
 import re
+from functools import partial
+
 import sublime
 import sublime_plugin
 
-from functools import partial
-
 from .utils import analysis
 from .utils.logging import logger
-from .utils.selectors import build_ast
-from .utils.selectors import match_selector
+from .utils.selectors import build_ast, match_selector
 from .utils.settings import get_setting
 
 __all__ = ["LatextoolsContextListener"]
@@ -160,8 +159,8 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
                 env.endswith("*"): r"\*",
             }.get(True, r"\*?")
             env = env.rstrip("*!")
-            benv = fr"\\begin(?:\[[^\]]\])?{{{env}{star}}}"
-            eenv = fr"\\end{{{env}{star}}}"
+            benv = rf"\\begin(?:\[[^\]]\])?{{{env}{star}}}"
+            eenv = rf"\\end{{{env}{star}}}"
 
             if only_nearest:
                 real_benv = benv
@@ -173,7 +172,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
             # if there is no \begin we are not inside the environment
             if not regions:
                 return False
-            closed_regions = len(list(r for r in view.find_all(eenv) if r.b < search_end))
+            closed_regions = len([r for r in view.find_all(eenv) if r.b < search_end])
             # if we have closed as many (or more?) environments as we opened
             # we are not inside the environment
             if len(regions) <= closed_regions:
@@ -216,9 +215,7 @@ class LatextoolsContextListener(sublime_plugin.EventListener):
         while text:
             try:
                 command_match = next(
-                    c
-                    for c in command_re.finditer(text)
-                    if c.start() < text_pos and text_pos < c.end()
+                    c for c in command_re.finditer(text) if c.start() < text_pos < c.end()
                 )
             except StopIteration:
                 break

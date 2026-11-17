@@ -1,17 +1,39 @@
 # keytheorems package
-# Matthew Bertucci 2025/09/17 for v0.3.2
+# Matthew Bertucci 2026/09/18 for v0.4.0
 
-#include:aliascnt
 #include:amsthm
 #include:refcount
 #include:translations
 #include:unique
 
+\keytheoremset{options%keyvals}
+
 #keyvals:\usepackage/keytheorems#c
+auto-qed
+#endkeyvals
+
+#keyvals:\usepackage/keytheorems#c,\keytheoremset#c
 overload
 thmtools-compat
 store-all
+restate-counters={%<counter1,counter2,...%>}
+qed-symbol=%<symbol%>
+auto-translate#true,false
+store-sets-label
+predefined
+predefined={%<options%>}
 #endkeyvals
+
+#keyvals:\keytheoremset#c
+continues-code=%<code%>
+#endkeyvals
+
+#ifOption:auto-qed
+#include:amsmath
+#endif
+#ifOption:thmmarks
+#include:amsmath
+#endif
 
 #ifOption:thmtools-compat
 \declaretheorem{envname}#N
@@ -24,7 +46,7 @@ store-all
 \begin{restatable*}{envname}{tag}
 \begin{restatable*}[options%keyvals]{envname}{tag}
 \end{restatable*}
-#keyvals:\begin{restatable},\begin{restatable*}
+#keyvals:\begin{restatable}#c,\begin{restatable*}#c
 note=%<text%>
 short-note=%<text%>
 label=##l
@@ -34,6 +56,8 @@ continues*=#%label
 restate-keys={%<keyvals%>}
 listhack=#true,false
 seq=%<name%>
+tcb-append={%<tcolorbox keys%>}
+ignore=#true,false
 #endkeyvals
 \listoftheorems
 \listoftheorems[options%keyvals]
@@ -54,24 +78,6 @@ shaded={%<shade options%>}
 #endkeyvals
 #endif
 
-\keytheoremset{options%keyvals}
-
-#keyvals:\usepackage/keytheorems#c,\keytheoremset#c
-overload
-thmtools-compat
-store-all
-restate-counter
-qed-symbol=%<symbol%>
-auto-translate#true,false
-store-sets-label
-predefined
-predefined={%<options%>}
-#endkeyvals
-
-#keyvals:\keytheoremset#c
-continues-code=%<code%>
-#endkeyvals
-
 \newkeytheorem{envname}#N
 \newkeytheorem{envname}[options%keyvals]#N
 \renewkeytheorem{envname}
@@ -86,6 +92,8 @@ continues-code=%<code%>
 name=%<display name%>
 refname=%<ref name%>
 Refname=%<ref name%>
+plural-refname=%<ref name%>
+plural-Refname=%<ref name%>
 #endkeyvals
 
 # keys that can be used in styles

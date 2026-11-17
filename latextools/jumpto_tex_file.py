@@ -1,14 +1,12 @@
-import re
 import os
-import codecs
+import re
 import shlex
 import traceback
 
 import sublime
 import sublime_plugin
 
-from .utils import analysis
-from .utils import utils
+from .utils import analysis, utils
 from .utils.external_command import external_command
 from .utils.logging import logger
 from .utils.settings import get_setting
@@ -16,9 +14,7 @@ from .utils.tex_directives import get_tex_root
 
 __all__ = ["LatextoolsJumptoFileCommand"]
 
-INPUT_REG = re.compile(
-    r"\\(?:input|include|subfile|loadglsentries)\{(?P<file>[^}]+)\}", re.UNICODE
-)
+INPUT_REG = re.compile(r"\\(?:input|include|subfile|loadglsentries)\{(?P<file>[^}]+)\}", re.UNICODE)
 
 IMPORT_REG = re.compile(
     r"\\(?:(?:sub)?import|(?:sub)?inputfrom|(?:sub)?includefrom)"
@@ -36,8 +32,7 @@ BIB_REG = re.compile(
 )
 
 IMAGE_REG = re.compile(
-    r"\\includegraphics(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}"
-    , re.UNICODE
+    r"\\includegraphics(?:<[^>]*>)?(?:\[[^\]]*\])?\{(?P<file>[^\}]+)\}", re.UNICODE
 )
 
 
@@ -222,7 +217,6 @@ def _split_bib_args(bib_args):
 
 
 class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
-
     def run(self, edit, auto_create_missing_folders=True, auto_insert_root=True, position=None):
         view = self.view
         tex_root = get_tex_root(view)
@@ -241,7 +235,7 @@ class LatextoolsJumptoFileCommand(sublime_plugin.TextCommand):
             line_r = view.line(sel)
             line = view.substr(line_r)
 
-            def is_inside(g):
+            def is_inside(g, line_r=line_r, sel=sel):
                 """check whether the selection is inside the command"""
                 if g is None:
                     return False

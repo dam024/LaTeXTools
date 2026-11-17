@@ -1,12 +1,10 @@
 from ...latextools.utils.external_command import external_command
-
 from .base_viewer import BaseViewer
 
 __all__ = ["PreviewViewer"]
 
 
 class PreviewViewer(BaseViewer):
-
     @classmethod
     def view_file(cls, pdf_file, **kwargs):
         keep_focus = kwargs.pop("keep_focus", True)

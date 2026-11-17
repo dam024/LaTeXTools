@@ -1,7 +1,8 @@
 # tkz-elements package
-# Matthew Bertucci 2025/09/26 for v4.25c
+# Matthew Bertucci 2026/10/13 for v6.00c
 
 #include:iftex
+#include:luatex
 
 \tkzGetNodes
 \tkzDrawLuaEllipse(pt1,pt2,pt3)
@@ -32,7 +33,3 @@
 \tkzDrawPointOnCurve(arg)
 \tkzDrawPointOnCurve[options](arg)
 \percentchar#*
-
-# deprecated
-\begin{tkzelements}#S
-\end{tkzelements}#S

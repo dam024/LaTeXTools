@@ -1,18 +1,17 @@
 import codecs
 import collections
-import sublime
 import traceback
 
-from ...vendor.charset_normalizer import from_bytes as charset_from_bytes
+import sublime
 
 from ...latextools.latextools_plugin import LaTeXToolsPlugin
 from ...latextools.utils import bibcache
 from ...latextools.utils.logging import logger
-
+from ...vendor import latex_chars
 from ...vendor.bibtex import Parser
 from ...vendor.bibtex.names import Name
 from ...vendor.bibtex.tex import tokenize_list
-from ...vendor import latex_chars
+from ...vendor.charset_normalizer import from_bytes as charset_from_bytes
 
 __all__ = ["NewBibliographyPlugin"]
 
@@ -159,7 +158,7 @@ class NewBibliographyPlugin(LaTeXToolsPlugin):
                 text = text.replace("\r\n", "\n").replace("\r", "\n")
 
                 # parse text
-                for key, entry in parser.parse(text).items():
+                for entry in parser.parse(text).values():
                     if entry.entry_type in excluded_types:
                         continue
 

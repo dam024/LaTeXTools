@@ -3,14 +3,12 @@ import sublime
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.settings import get_setting
 from ...latextools.utils.sublime_utils import get_sublime_exe
-
 from .base_viewer import BaseViewer
 
 __all__ = ["SioyekViewer"]
 
 
 class SioyekViewer(BaseViewer):
-
     @classmethod
     def _run_sioyek(cls, *args, **kwargs):
         platform = sublime.platform()
@@ -20,9 +18,7 @@ class SioyekViewer(BaseViewer):
             # fallback to platform specific settings
             or get_setting(platform, {}).get("sioyek")
             # static binary expected to be found on $PATH
-            or "sioyek.exe"
-            if platform == "windows"
-            else "sioyek"
+            or ("sioyek.exe" if platform == "windows" else "sioyek")
         )
 
         command = [sioyek_binary]
@@ -50,7 +46,7 @@ class SioyekViewer(BaseViewer):
             "--inverse-search",
             f'"{get_sublime_exe()}" "%1:%2"',
             pdf_file,
-            **kwargs
+            **kwargs,
         )
 
     @classmethod

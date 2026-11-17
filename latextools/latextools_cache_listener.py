@@ -1,13 +1,10 @@
-import collections
-from functools import partial
 import threading
 import traceback
 
 import sublime
 import sublime_plugin
 
-from .latex_cite_completions import find_bib_files
-from .latex_cite_completions import run_plugin_command
+from .latex_cite_completions import find_bib_files, run_plugin_command
 from .latex_cwl_completions import get_cwl_command_completions
 from .utils import analysis
 from .utils.activity_indicator import ActivityIndicator
@@ -17,9 +14,9 @@ from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 
 __all__ = [
-    "LatextoolsCacheUpdateListener",
     "LatextoolsAnalysisUpdateCommand",
     "LatextoolsBibcacheUpdateCommand",
+    "LatextoolsCacheUpdateListener",
 ]
 
 # stores a cache instance per open LaTeX view
@@ -75,10 +72,16 @@ class LatextoolsCacheUpdateListener(sublime_plugin.EventListener):
                 self.on_load(view)
 
     def on_load(self, view):
-        if not view.is_primary():
-            return
+        """
+        Update analysis cache, if view still exists after 500ms.
 
-        if not view.match_selector(0, "text.tex.latex"):
+        Skips expensive tasks when quickly switching views in e.g. Goto Anyhting
+        """
+        if view.is_primary() and view.match_selector(0, "text.tex.latex"):
+            sublime.set_timeout(lambda: self.on_load_delayed(view), 500)
+
+    def on_load_delayed(self, view):
+        if not view.is_valid():
             return
 
         cache = get_cache(view)

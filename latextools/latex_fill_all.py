@@ -5,9 +5,7 @@ import traceback
 import sublime
 import sublime_plugin
 
-from .latextools_plugin import classname_to_plugin_name
-from .latextools_plugin import get_plugins_by_type
-from .latextools_plugin import LaTeXToolsPlugin
+from .latextools_plugin import LaTeXToolsPlugin, get_plugins_by_type
 from .utils.decorators import async_completions
 from .utils.logging import logger
 from .utils.settings import get_setting
@@ -15,12 +13,13 @@ from .utils.sublime_utils import move_cursor_relative
 
 __all__ = [
     "LatexFillAllEventListener",
-    "LatextoolsFillAllCommand",
     "LatexToolsFillAllCompleteBracket",
     "LatexToolsReplaceWord",
+    "LatextoolsFillAllCommand",
 ]
 
 VISIBLE_OVERLAYS = set()
+
 
 def reraise(tp, value, tb=None):
     if value is None:
@@ -79,7 +78,7 @@ class LatexFillAllPlugin(LaTeXToolsPlugin):
             The contents of the first selected line, used by some plugins to
             determine the correct completions
         """
-        return None
+        return
 
     def on_selection(self, view, insert_text, should_complete):
         """
@@ -141,7 +140,7 @@ class LatexFillAllPluginAdapter:
         for plugin in get_plugins_by_type(LatexFillAllPlugin):
             name = plugin.plugin_name()
             if name.endswith("_latex_fill_all"):
-                name = name[:-len("_latex_fill_all")]
+                name = name[: -len("_latex_fill_all")]
                 if name:
                     self._plugins[name] = plugin()
 
@@ -253,7 +252,7 @@ class LatexFillHelper:
 
                 self.update_selections(view, new_regions)
 
-    def complete_brackets(self, view, edit, insert_char="", remove_regions=[]):
+    def complete_brackets(self, view, edit, insert_char="", remove_regions=None):
         """
         Intended to be called from a TextCommand to insert a specified
         insert_char, close the nearest bracket, and remove any regions
@@ -271,6 +270,8 @@ class LatexFillHelper:
         :param remove_regions:
             any regions to be removed from the current view
         """
+        if remove_regions is None:
+            remove_regions = []
         self.insert_at_end(view, edit, insert_char)
         self.complete_auto_match(view, edit, insert_char)
         self.remove_regions(view, edit, remove_regions)
@@ -735,39 +736,34 @@ class LatexFillAllEventListener(
 
         # autofill input quick panel visible
         if key == "latextools.input_overlay_visible":
-            try:
-                return view.window().id() in VISIBLE_OVERLAYS
-            except:
-                return False
+            return bool((window := view.window()) and window.id() in VISIBLE_OVERLAYS)
 
         # quick exit conditions
         if not key.startswith("lt_fill_all_"):
-            return None
+            return False
+
         for sel in view.sel():
             point = sel.b
             if not view.match_selector(point, "text.tex.latex"):
-                return None
+                return False
 
         # load the plugins
         if self.SUPPORTED_KEYS is None:
             self.SUPPORTED_KEYS = {
-                f"lt_fill_all_{name}": name
-                for name in self.get_completion_types()
+                f"lt_fill_all_{name}": name for name in self.get_completion_types()
             }
 
         try:
             key, insert_char = key.split(".")
-        except Exception:
+        except ValueError:
             insert_char = ""
 
-        # not handled here
-        if key not in self.SUPPORTED_KEYS:
-            return None
-        # unsupported bracket
-        elif insert_char and insert_char not in self.SUPPORTED_INSERT_CHARS:
-            return False
-        # unsupported operators
-        elif operator not in [sublime.OP_EQUAL, sublime.OP_NOT_EQUAL]:
+        # not handled here or unsupported bracket
+        if (
+            key not in self.SUPPORTED_KEYS
+            or insert_char and insert_char not in self.SUPPORTED_INSERT_CHARS
+            or operator not in [sublime.OP_EQUAL, sublime.OP_NOT_EQUAL]
+        ):
             return False
 
         insert_char = self.SUPPORTED_INSERT_CHARS.get(insert_char, "")
@@ -787,7 +783,7 @@ class LatexFillAllEventListener(
         ]
 
         func = all if match_all else any
-        result = func((completion_type.matches_line(line) for line in lines))
+        result = func(completion_type.matches_line(line) for line in lines)
 
         return result if operator == sublime.OP_EQUAL else not result
 
@@ -806,11 +802,10 @@ class LatexFillAllEventListener(
         prefix = self.get_common_prefix(view, locations)
 
         fancy_prefixed_line = None
-        if remove_regions:
-            if remove_regions:
-                fancy_prefixed_line = view.substr(
-                    sublime.Region(view.line(locations[0]).begin(), locations[0])
-                )[::-1]
+        if remove_regions and remove_regions:
+            fancy_prefixed_line = view.substr(
+                sublime.Region(view.line(locations[0]).begin(), locations[0])
+            )[::-1]
 
         line = view.substr(sublime.Region(view.line(locations[0]).begin(), locations[0]))[::-1]
 
@@ -833,14 +828,12 @@ class LatexFillAllEventListener(
                 remove_regions = []
                 break
 
-        if completion_type is None:
-            self.clear_bracket_cache()
-            return []
-        elif not self.match_selector(view, completion_type.get_supported_scope_selector()):
-            self.clear_bracket_cache()
-            return []
-        # completions could be unpredictable if we've changed the prefix
-        elif orig_prefix and not prefix:
+        if (
+            completion_type is None
+            or not self.match_selector(view, completion_type.get_supported_scope_selector())
+            or orig_prefix
+            and not prefix
+        ):
             self.clear_bracket_cache()
             return []
 
@@ -1155,7 +1148,9 @@ class LatexToolsReplaceWord(sublime_plugin.TextCommand, LatexFillHelper):
         as returned by the regions_to_tuples method
     """
 
-    def run(self, edit, replacement="", insert_char="", remove_regions=[]):
+    def run(self, edit, replacement="", insert_char="", remove_regions=None):
+        if remove_regions is None:
+            remove_regions = []
         view = self.view
         if insert_char:
             insert_text = insert_char + replacement if replacement else insert_char
@@ -1182,5 +1177,7 @@ class LatexToolsFillAllCompleteBracket(sublime_plugin.TextCommand, LatexFillHelp
         as returned by the regions_to_tuples method.
     """
 
-    def run(self, edit, insert_char="", remove_regions=[]):
+    def run(self, edit, insert_char="", remove_regions=None):
+        if remove_regions is None:
+            remove_regions = []
         self.complete_brackets(self.view, edit, insert_char, self.tuples_to_regions(remove_regions))

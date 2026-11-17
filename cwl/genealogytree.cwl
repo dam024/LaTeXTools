@@ -1,5 +1,5 @@
 # genealogytree package
-# Matthew Bertucci 2023/03/09 for v2.3.0
+# Matthew Bertucci 2026/05/07 for v2.4.0
 
 #include:tcolorbox
 #include:tcolorboxlibraryskins
@@ -165,7 +165,7 @@ dash dot
 densely dash dot
 loosely dash dot
 dash dot dot
-densely dash dot dot 
+densely dash dot dot
 loosely dash dot dot
 double
 double=#%color
@@ -285,10 +285,10 @@ draw opacity=%<value%>
 opacity=%<value%>
 transparent
 ultra nearly transparent
-very nearly transparent 
+very nearly transparent
 nearly transparent
 semitransparent
-nearly opaque 
+nearly opaque
 very nearly opaque
 ultra nearly opaque
 opaque
@@ -442,6 +442,7 @@ sharp plot
 smooth
 tension=%<value%>
 smooth cycle
+smooth monotone
 const plot
 const plot mark left
 const plot mark right
@@ -541,6 +542,9 @@ pic text options={%<options%>}
 ## 7.9 Formatting Events ##
 \gtrPrintEvent{name}
 \gtrifeventdefined{name}{true}{false}#*
+\gtrifnativitydefined{true}{false}#*
+\gtrifwedlockdefined{true}{false}#*
+\gtrifdeceasedefined{true}{false}#*
 \gtrPrintEventPrefix{name}
 
 ## 7.10 Formatting Lists of Events ##
@@ -779,7 +783,7 @@ fanchart-root-code={%<code%>}
 
 #keyvals:\genealogytree#c,\genealogytreeinput#c,\begin{genealogypicture}#c,\gtrset#c,\gtrkeysappto#c,\gtrkeysgappto#c,\gtrsetoptionsfornode#c,\gtrsetoptionsforfamily#c,\gtrsetoptionsforsubtree#c,\gtrparserdebug#c,\gtrparserdebuginput#c,\gtrprocessordebug#c,\gtrprocessordebuginput#c,\gtrfanchart#c,\gtrfanchartinput#c
 ### 5 Option Setting ###
-## 5.2 Graph Growth Setting (Time Flow) ##                                     
+## 5.2 Graph Growth Setting (Time Flow) ##
 timeflow=#down,up,left,right
 ## 5.3 Graph Geometry ##
 level distance=##L
@@ -891,7 +895,7 @@ content interpreter=%<macro%>
 content interpreter code={%<code%>}
 content interpreter content={%<code%>}
 no content interpreter
-deletion content interpreter 
+deletion content interpreter
 database content interpreter
 id content interpreter
 content interpreter id and content={%<id%>}{%<code%>}
@@ -1050,7 +1054,7 @@ show type
 
 ### 12 Templates: Library templates ###
 ## Using Templates ##
-template=#formal graph,signpost,symbol nodes,tiny boxes,tiny circles,directory,database pole,database pole reduced,database poleportrait,database poleportrait reduced,database portrait,database portrait reduced,database traditional,database traditional reduced,database sideways,database sideways reduced,database sidewaysportrait,database sidewaysportrait reduced,database relationship,ahnentafel 3,ahnentafel 4,ahnentafel 5,a4paper 3,a4paper 4,a3paper 5,letterpaper 3,letterpaper 4,display 16:9 3,display 16:9 4,display 16:9 5,display 16:10 3,display 16:10 4,display 16:10 5
+template=#formal graph,signpost,symbol nodes,tiny boxes,tiny circles,medical,directory,database pole,database pole reduced,database poleportrait,database poleportrait reduced,database portrait,database portrait reduced,database traditional,database traditional reduced,database sideways,database sideways reduced,database sidewaysportrait,database sidewaysportrait reduced,database relationship,ahnentafel 3,ahnentafel 4,ahnentafel 5,a4paper 3,a4paper 4,a3paper 5,letterpaper 3,letterpaper 4,display 16:9 3,display 16:9 4,display 16:9 5,display 16:10 3,display 16:10 4,display 16:10 5
 template horizontal border=##L
 template vertical border=##L
 #endkeyvals

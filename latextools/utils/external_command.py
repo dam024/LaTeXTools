@@ -31,21 +31,20 @@
 # whether or not to run the executable with the PATH set to the current value
 # of texpath.
 from __future__ import annotations
+
 import os
 import re
-import sys
-
-from shlex import split, quote
-from shutil import which
-
+import shlex
 import subprocess
-from subprocess import Popen, PIPE, STDOUT, CalledProcessError
+import sys
+from shutil import which
+from subprocess import DEVNULL, PIPE, STDOUT, CalledProcessError, Popen, list2cmdline
+from typing import TYPE_CHECKING
 
 import sublime
 
 from .logging import logger
 from .settings import get_setting
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from typing import TypeAlias
@@ -53,17 +52,29 @@ if TYPE_CHECKING:
     CommandLine: TypeAlias = list[str] | str
 
 __all__ = [
-    "external_command",
-    "execute_command",
+    "DEVNULL",
+    "PIPE",
+    "STDOUT",
+    "CalledProcessError",
+    "Popen",
     "check_call",
     "check_output",
+    "execute_command",
+    "external_command",
     "get_texpath",
 ]
 
-__sentinel__ = object()
+IS_WIN = sys.platform == "win32"
 
 
-def get_texpath(view: sublime.View | None=None) -> str | None:
+def shell_quote(s: str) -> str:
+    if IS_WIN:
+        s = re.sub(r"([&|<>?*])", R"^\1", s)
+        return '"' + s.replace('"', '""') + '"' if " " in s else s
+    return shlex.quote(s)
+
+
+def get_texpath(view: sublime.View | None = None) -> str | None:
     """
     Get texpath setting with environment variables expanded.
 
@@ -78,8 +89,7 @@ def get_texpath(view: sublime.View | None=None) -> str | None:
 
 
 def create_tex_env(
-    env: dict[str, str] | None=None,
-    view: sublime.View | None=None
+    env: dict[str, str] | None = None, view: sublime.View | None = None
 ) -> dict[str, str] | None:
     """
     Creates a tex environment.
@@ -108,9 +118,9 @@ def external_command(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stdout=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stdout=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
@@ -131,43 +141,54 @@ def external_command(
 
     # Windows-specific adjustments
     startupinfo = None
-    if not show_window and sublime.platform() == "windows":
+    if IS_WIN and not show_window:
         # ensure console window doesn't show
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startupinfo.wShowWindow = subprocess.SW_HIDE
 
-    if stdin is __sentinel__:
-        stdin = None
+    if shell:
+        if IS_WIN:
+            if isinstance(cmd, list):
+                cmd = list2cmdline(cmd)
+            elif not isinstance(cmd, str):
+                raise TypeError(f"Invalid command type! '{cmd!r}' must be a 'str' or 'list'!")
 
-    if stdout is __sentinel__:
-        stdout = None
+            # make sure to run scripts with %SYSTEMROOT%\System32\cmd.exe
+            comspec = os.path.join(os.environ.get("SystemRoot", ""), "System32", "cmd.exe")
+            if not os.path.isabs(comspec):
+                raise FileNotFoundError("cmd.exe not found!")
 
-    if stderr is __sentinel__:
-        stderr = None
+            cmd = f'{comspec} /c "{cmd}"'
 
-    if isinstance(cmd, str):
-        logger.debug(f'Running "{cmd}"')
-    else:
-        try:
-            logger.debug('Running "%s"', ' '.join(map(quote, cmd)))
-        except UnicodeError:
-            try:
-                logger.debug(f'Running "{cmd}"')
-            except Exception:
-                pass
+        else:
+            if isinstance(cmd, list):
+                cmd = shlex.join(cmd)
+            elif not isinstance(cmd, str):
+                raise TypeError(f"Invalid command type! '{cmd!r}' must be a 'str' or 'list'!")
+
+            # run scripts using bash on all platforms
+            if sys.platform == "darwin":
+                # use login-shell to ensure users' env variables are picked up
+                # (borrowed from Default/exec.py)
+                cmd = ["/usr/bin/env", "bash", "-l", "-c", cmd]
+            else:
+                cmd = ["/usr/bin/env", "bash", "-c", cmd]
 
     # If shell=False is specified, executed command is only looked up using
     # os.environ["PATH"]. Hence manually resolve location with custom env's PATH.
-    if env and not shell and not os.path.isabs(cmd[0]):
+    elif isinstance(cmd, list) and env and not os.path.isabs(cmd[0]):
         cmd[0] = which(cmd[0], path=env.get("PATH")) or cmd[0]
+
+    logger.debug(f"Running {cmd}")
 
     return Popen(
         cmd,
         cwd=cwd,
         env=env,
+        bufsize=0,
         preexec_fn=preexec_fn,
-        shell=shell,
+        shell=False,
         startupinfo=startupinfo,
         stderr=stderr,
         stdin=stdin,
@@ -180,9 +201,9 @@ def execute_command(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stdout=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stdout=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
@@ -207,10 +228,10 @@ def execute_command(
         else:
             return "\n".join(re.split(r"\r?\n", stream.decode("utf-8", "ignore").rstrip()))
 
-    if stdout is __sentinel__:
+    if stdout is None:
         stdout = PIPE
 
-    if stderr is __sentinel__:
+    if stdout is None:
         stderr = STDOUT
 
     p = external_command(
@@ -235,9 +256,9 @@ def check_call(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stdout=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stdout=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,
@@ -251,11 +272,11 @@ def check_call(
     This is pretty much identical to subprocess.check_call(), but
     implemented here to take advantage of LaTeXTools-specific tooling.
     """
-    # since we don't do anything with the output, by default just ignore it
-    if stdout is __sentinel__:
-        stdout = open(os.devnull, "w")
-    if stderr is __sentinel__:
-        stderr = open(os.devnull, "w")
+    if stdout is None:
+        stdout = DEVNULL
+
+    if stdout is None:
+        stderr = DEVNULL
 
     returncode, stdout, stderr = execute_command(
         command,
@@ -271,6 +292,8 @@ def check_call(
 
     if returncode:
         e = CalledProcessError(returncode, command)
+        e.output = stdout
+        e.stderr = stderr
         raise e
 
     return 0
@@ -281,8 +304,8 @@ def check_output(
     cwd=None,
     shell=False,
     env=None,
-    stdin=__sentinel__,
-    stderr=__sentinel__,
+    stdin=None,
+    stderr=None,
     preexec_fn=None,
     use_texpath=True,
     show_window=False,

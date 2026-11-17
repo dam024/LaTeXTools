@@ -89,7 +89,7 @@ dash dot
 densely dash dot
 loosely dash dot
 dash dot dot
-densely dash dot dot 
+densely dash dot dot
 loosely dash dot dot
 double
 double=#%color
@@ -209,10 +209,10 @@ draw opacity=%<value%>
 opacity=%<value%>
 transparent
 ultra nearly transparent
-very nearly transparent 
+very nearly transparent
 nearly transparent
 semitransparent
-nearly opaque 
+nearly opaque
 very nearly opaque
 ultra nearly opaque
 opaque
@@ -369,6 +369,7 @@ sharp plot
 smooth
 tension=%<value%>
 smooth cycle
+smooth monotone
 const plot
 const plot mark left
 const plot mark right
@@ -447,7 +448,7 @@ nodes={%<TikZ keys%>}
 \storefirstcorner{macro%cmd}#d
 \storesecondcorner{macro%cmd}#d
 
-\settgtlayer#*
+\settgtlayer#S
 \anchorpoint#S
 \distance#S
 \source#S
@@ -455,7 +456,7 @@ nodes={%<TikZ keys%>}
 \offb#S
 \dest#S
 \depname#S
-\xca#*
-\xcb#*
-\yca#*
-\ycb#*
+\xca#S
+\xcb#S
+\yca#S
+\ycb#S

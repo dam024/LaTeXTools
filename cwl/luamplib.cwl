@@ -1,5 +1,5 @@
 # luamplib package
-# Matthew Bertucci 2025/05/15 for v2.37.3
+# Matthew Bertucci 2026/09/30 for v2.44.0
 
 #include:luatex
 
@@ -55,6 +55,10 @@
 \mplibgroup{name}#S
 \mplibgroup{name}[options]#S
 \endmplibgroup#S
+\mplibexternalize
+\mplibexternalizename{prefix}
+\mplibexternalizesuspend
+\mplibexternalizeresume
 
 #keyvals:\begin{mplibcode}#c,\mpfig#c,\mpfig*#c,\usemplibgroup#c
 alt=%<alt text%>
@@ -65,6 +69,9 @@ off
 tag=%<tag name%>
 adjust-BBox=%<llx lly urx ury%>
 tagging-setup={%<keyvals%>}
+externalize#true,false
+externalizedependson={%<number,...%>}
+externalizemargin=##L
 instance=%<instance name%>
 #endkeyvals
 
@@ -97,6 +104,7 @@ metafun
 
 #keyvals:\begin{mplibgroup}
 asgroup=%<string%>
+colorspace=%<string%>
 bbox="%<llx lly urx ury%>"
 matrix="%<xx xy yx yy%>"
 resources=%<PDF resources%>
@@ -109,6 +117,11 @@ resources=%<PDF resources%>
 \luamplibateveryshipout{arg}#S
 \luamplibatfirstshipout{arg}#S
 \luamplibatnextshipout{arg}#S
+\luamplibexternalizealloc#S
+\luamplibexternalizeattr#S
+\luamplibexternalizecount#S
+\luamplibexternalizemaybe#S
+\luamplibexternalizethisfigure#S
 \luamplibnotagtextboxset{arg1}{arg2}#S
 \luamplibtagasgroupput#S
 \luamplibtagasgroupset#S

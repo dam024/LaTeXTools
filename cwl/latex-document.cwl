@@ -3,7 +3,7 @@
 # tbraun/2006-08-03 removed dup inserted by me ...
 # tbraun/2007-02-24 added left/right variants
 # dbitouze/2015-02-21 obsolete font style commands made unusual
-# Matthew Bertucci 2025/06/01 release
+# Matthew Bertucci 2026/06/01 release
 
 #include:latex-dev
 
@@ -63,11 +63,14 @@
 \begin{normalsize}
 \begin{picture}(width,height)#\pictureHighlight
 \begin{picture}(width,height)(xoffset,yoffset)
+\begin{picture}[options%keyvals](width,height)
+\begin{picture}[options%keyvals](width,height)(xoffset,yoffset)
 \begin{pmatrix}#m\array
 \begin{quotation}
 \begin{quote}
-\begin{scriptsize}
 \begin{samepage}
+\begin{scriptsize}
+\begin{sloppypar}#*
 \begin{small}
 \begin{tabbing}
 \begin{table*}
@@ -119,8 +122,9 @@
 \end{pmatrix}#m
 \end{quotation}
 \end{quote}
-\end{scriptsize}
 \end{samepage}
+\end{scriptsize}
+\end{sloppypar}
 \end{small}
 \end{tabbing}
 \end{table}
@@ -317,9 +321,9 @@
 \newlength{newlength%cmd}#d
 \newline
 \newpage
-\newtheorem{envname}[numbered like]{caption}#N
-\newtheorem{envname}{caption}#N
-\newtheorem{envname}{caption}[within]#N
+\newtheorem{envname}[numbered like]{caption%text}#N
+\newtheorem{envname}{caption%text}#N
+\newtheorem{envname}{caption%text}[within]#N
 \NoCaseChange{text}#*
 \nocite{keylist}#c
 \nocorr#*
@@ -372,7 +376,7 @@
 \qbezier[n](x1,y1)(x2,y2)(x3,y3)#*/picture
 \qbeziermax#*
 \raggedleft
-\r{letter}
+\r{letter}#M
 \rbrack#*
 \ref{label}#r
 \ref*{label}#r

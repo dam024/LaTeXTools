@@ -6,12 +6,10 @@ import sublime
 import sublime_plugin
 
 from ..plugins.viewer import *  # register internal viewer plugins
-from .latextools_plugin import get_plugin
-from .latextools_plugin import NoSuchPluginException
+from .latextools_plugin import NoSuchPluginException, get_plugin
 from .utils.is_tex_file import is_tex_file
 from .utils.logging import logger
-from .utils.output_directory import get_jobname
-from .utils.output_directory import get_output_directory
+from .utils.output_directory import get_jobname, get_output_directory
 from .utils.settings import get_setting
 from .utils.sublime_utils import focus_st
 from .utils.tex_directives import get_tex_root
@@ -48,8 +46,7 @@ def get_viewer():
             viewer = get_plugin(viewer_name)
         except NoSuchPluginException:
             sublime.error_message(
-                f"Cannot find viewer {viewer_name}.\n"
-                "Please check your LaTeXTools Preferences."
+                f"Cannot find viewer {viewer_name}.\nPlease check your LaTeXTools Preferences."
             )
             raise NoViewerException()
 
@@ -71,7 +68,6 @@ def get_viewer():
 # Jump to current row in PDF file
 # NOTE: must be called with {"from_keybinding": <boolean>} as arg
 class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex")
@@ -104,12 +100,14 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
         if from_keybinding:
             forward_sync = True
 
-        logger.debug(f"from_keybinding={from_keybinding}, keep_focus={keep_focus}, forward_sync={forward_sync}")
+        logger.debug(
+            f"from_keybinding={from_keybinding}, keep_focus={keep_focus}, forward_sync={forward_sync}"
+        )
 
         file_name = view.file_name()
         if not is_tex_file(file_name):
             if from_keybinding:
-                file_name = os.path.basename(file_name) if file_name else 'untitled'
+                file_name = os.path.basename(file_name) if file_name else "untitled"
                 sublime.error_message(f"{file_name} is not a TeX source file: cannot jump.")
                 return
             # If not invoked from keybinding, it is invoked by the
@@ -190,7 +188,6 @@ class LatextoolsJumptoPdfCommand(sublime_plugin.WindowCommand):
 
 
 class LatextoolsViewPdfCommand(sublime_plugin.WindowCommand):
-
     def is_visible(self, *args):
         view = self.window.active_view()
         return view and view.match_selector(0, "text.tex")

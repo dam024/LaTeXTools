@@ -1,19 +1,14 @@
 import os
 import re
+
 import sublime
 import sublime_plugin
 
 from . import latex_input_completions
-
-from .latex_cite_completions import NEW_STYLE_CITE_REGEX
-from .latex_cite_completions import OLD_STYLE_CITE_REGEX
-from .latex_cwl_completions import command_to_snippet
-from .latex_cwl_completions import get_cwl_command_completions
-from .latex_env_completions import BEGIN_END_BEFORE_REGEX
-from .latex_env_completions import get_own_environments
-from .latex_ref_completions import NEW_STYLE_REF_REGEX
-from .latex_ref_completions import OLD_STYLE_REF_REGEX
-
+from .latex_cite_completions import NEW_STYLE_CITE_REGEX, OLD_STYLE_CITE_REGEX
+from .latex_cwl_completions import command_to_snippet, get_cwl_command_completions
+from .latex_env_completions import BEGIN_END_BEFORE_REGEX, get_own_environments
+from .latex_ref_completions import NEW_STYLE_REF_REGEX, OLD_STYLE_REF_REGEX
 from .utils import analysis
 from .utils.decorators import async_completions
 from .utils.settings import get_setting
@@ -65,6 +60,22 @@ def get_own_commands(ana):
     return ana.filter_commands(["newcommand", "renewcommand"])
 
 
+def get_own_xparse_commands(ana):
+    return ana.filter_commands(
+        [
+            "DeclareDocumentCommand",
+            "NewDocumentCommand",
+            "RenewDocumentCommand",
+            "ProvideDocumentCommand",
+            "DeclareExpandableDocumentCommand",
+            "NewExpandableDocumentCommand",
+            "RenewExpandableDocumentCommand",
+            "ProvideExpandableDocumentCommand",
+        ],
+        flags=analysis.NO_BEGIN_END_COMMANDS,
+    )
+
+
 def get_own_command_completions(tex_root):
     res = []
 
@@ -85,10 +96,7 @@ def get_own_command_completions(tex_root):
                 elif arg_count == 0:
                     raise NoArgs()
                 trigger += "{arg}" * arg_count
-                completion = command_to_snippet(trigger)
-                if completion is None:
-                    raise NoArgs()
-                completion = completion[1]
+                _, completion = command_to_snippet(trigger)
             except NoArgs:
                 completion = trigger = c.args + "{}"
 
@@ -102,6 +110,48 @@ def get_own_command_completions(tex_root):
                     kind=kind,
                 )
             )
+
+        for c in get_own_xparse_commands(ana):
+            # xparse form A: \NewDocumentCommand{\Command}{args}
+            if c.args:
+                # xparse commands use an argument spec like {s m O{default}}, not
+                # the numeric optional argument count used by \newcommand.
+                # For now, complete only the command name and show the full
+                # xargs spec in the details.
+                res.append(
+                    sublime.CompletionItem(
+                        trigger=f"{c.args}{{{c.args2 or ''}}}",
+                        completion=c.args,
+                        annotation="local",
+                        details=f"from {os.path.basename(c.file_name)}",
+                        kind=kind,
+                    )
+                )
+
+            # xparse form B: \NewDocumentCommand \Command { o mm }
+            elif (c := ana.next_command(c)) is not None:
+                # The defined command name is specified by the TeX command
+                # after xparse definition command.
+                # Positional arguments' spec is defined by letters
+                # - `m` (mandedory)
+                # - `o` (optional)
+                trigger = "\\" + c.command
+                for a in c.args:
+                    if a == "m":
+                        trigger += "{arg}"
+                    elif a == "o":
+                        trigger += "[opt]"
+                _, completion = command_to_snippet(trigger)
+                res.append(
+                    sublime.CompletionItem(
+                        trigger=trigger,
+                        completion=completion,
+                        completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+                        annotation="local",
+                        details=f"from {os.path.basename(c.file_name)}",
+                        kind=kind,
+                    )
+                )
 
         for c in get_own_environments(ana):
             res.append(

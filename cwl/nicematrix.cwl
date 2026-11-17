@@ -1,5 +1,5 @@
 # nicematrix package
-# Matthew Bertucci 2026/02/02 for v7.6
+# Matthew Bertucci 2026/10/07 for v7.12
 
 #include:amsmath
 #include:array
@@ -103,10 +103,11 @@ vlines
 vlines=
 hlines
 hlines=
+hlines-except-borders
 hvlines
 hvlines-except-borders
 corners
-corners=#NW,SW,NE,SE
+corners=#NW,SW,NE,SE,N,S,E,W
 custom-line={%<keyvals%>}
 code-before=%<code%>
 columns-width=##L
@@ -152,10 +153,16 @@ delimiters/max-width
 vlines-in-sub-matrix=%<letter%>
 rounded-corners
 rounded-corners=##L
-no-cell-nodes
+no-cell-nodes#true,false
 ampersand-in-blocks
 &-in-blocks
 create-blocks-in-col=%<integer%>
+default-line={%<keyvals%>}
+rules/fix-vertex
+width-of-false=##L
+width-of-false +=##L
+width-of-false -=##L
+color-of-false=#%color
 #endkeyvals
 
 #keyvals:\NiceMatrixOptions,\begin{NiceTabular}
@@ -184,6 +191,8 @@ notes/enumitem-keys={%<enumitem keys%>}
 notes/enumitem-keys-para={%<enumitem keys%>}
 matrix/columns-type=#l,c,r
 notes/code-before=%<code%>
+notes/detect-duplicates#true,false
+notes/no-print#true,false
 letter-for-dotted-lines=
 renew-matrix
 exterior-arraycolsep
@@ -221,6 +230,9 @@ tikz={%<TikZ options%>}
 name=%<name%>
 respect-arraystretch
 transparent
+rules/width=##L
+rules/color=#%color
+empty
 #endkeyvals
 
 \Hline#t
@@ -236,9 +248,12 @@ sep-color=#%color
 tikz={%<TikZ keys%>}
 total-width=##L
 dotted
+dashed
 start=%<integer%>
 end=%<integer%>
 #endkeyvals
+
+\FalseRow#t
 
 \diagbox{lower}{upper}#t
 
@@ -434,7 +449,16 @@ not-empty
 \tabularnote[symbol]{note%text}
 \begin{TabularNote}
 \end{TabularNote}
+\NiceTabularNotes
+
 \rotate
+\rotate[options%keyvals]
+
+#keyvals:\rotate
+c
+-90
+#endkeyvals
+
 \ShowCellNames#t
 
 \AutoNiceMatrix{i-j}{pattern}#m
@@ -463,6 +487,7 @@ vlines
 vlines=
 hlines
 hlines=
+hlines-except-borders
 hvlines
 hvlines-except-borders
 corners
@@ -488,7 +513,8 @@ nullify-dots
 renew-dots
 code-after=%<code%>
 small
-light-syntax
+light-syntax#true,false
+light-syntax-expanded#true,false
 name=%<name%>
 create-medium-nodes
 create-large-nodes

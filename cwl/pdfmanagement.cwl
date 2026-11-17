@@ -1,5 +1,5 @@
 # pdfmanagement package
-# Matthew Bertucci 2026/01/25 for v0.96y
+# Matthew Bertucci 2026/10/06 for v0.97d
 
 #include:tagpdf
 
@@ -47,12 +47,6 @@
 \pdfmanagement_show:n {%<⟨resource path⟩%>}#/%expl3
 
 ## ltdocinit
-\AddToDocumentProperties{property}{value}
-\AddToDocumentProperties[label]{property}{value}
-\GetDocumentProperty{label/property}
-\ShowDocumentProperties
-\LogDocumentProperties
-
 \pdfmanagement_get_documentproperty:n {%<⟨label/property⟩%>}#/%expl3
 \pdfmanagement_get_documentproperty:nNF {%<⟨label/property⟩%>} %<⟨tl var⟩%> {%<⟨false code⟩%>}#/%expl3
 \pdfmanagement_get_documentproperty:nNT {%<⟨label/property⟩%>} %<⟨tl var⟩%> {%<⟨true code⟩%>}#/%expl3
@@ -91,6 +85,7 @@
 \pdfxform_if_exist:nTF {%<⟨name⟩%>} {%<⟨true code⟩%>} {%<⟨false code⟩%>}#/%expl3
 \pdfxform_if_exist_p:n {%<⟨name⟩%>}#/%expl3
 \pdfxform_new:nnn {%<⟨name⟩%>} {%<⟨attributes⟩%>} {%<⟨content⟩%>}#/%expl3
+\pdfxform_new:nnnn {%<⟨name⟩%>} {%<⟨attributes⟩%>} {%<⟨content⟩%>} {%<⟨excluded resources⟩%>}#/%expl3
 \pdfxform_ref:n {%<⟨name⟩%>}#/%expl3
 \pdfxform_use:n {%<⟨name⟩%>}#/%expl3
 \pdfxform_wd:n {%<⟨name⟩%>}#/%expl3
@@ -127,6 +122,7 @@
 \pdf_emc:#/%expl3
 \pdf_name_from_unicode_e:V %<⟨tl var⟩%>#/%expl3
 \pdf_name_from_unicode_e:n {%<⟨content⟩%>}#/%expl3
+\pdf_purify:nN {%<⟨content⟩%>} %<⟨tl var⟩%>#/%expl3
 \pdf_string_from_unicode:nVN {%<⟨format⟩%>} %<⟨tl var⟩%> %<⟨tl var⟩%>#/%expl3
 \pdf_string_from_unicode:nnN {%<⟨format⟩%>} {%<⟨content⟩%>} %<⟨tl var⟩%>#/%expl3
 
@@ -142,6 +138,23 @@
 \pdffile_embed_stream:nnn {%<⟨content⟩%>} {%<⟨target file⟩%>} {%<⟨object name⟩%>}#/%expl3
 \pdffile_filespec:nne {%<⟨object name⟩%>} {%<⟨file⟩%>} {%<⟨stream object reference⟩%>}#/%expl3
 \pdffile_filespec:nnn {%<⟨object name⟩%>} {%<⟨file⟩%>} {%<⟨stream object reference⟩%>}#/%expl3
+
+# l3pdfoutline
+\l_pdfoutline_active_bool#/%expl3
+\l_pdfoutline_color_model_tl#/%expl3
+\l_pdfoutline_color_tl#/%expl3
+\l_pdfoutline_F_bitset#/%expl3
+\l_pdfoutline_open_bool#/%expl3
+\l_pdfoutline_open_int#/%expl3
+\pdfoutline_action:nee {%<⟨level⟩%>} {%<⟨action⟩%>} {%<⟨title⟩%>}#/%expl3
+\pdfoutline_action:neo {%<⟨level⟩%>} {%<⟨action⟩%>} {%<⟨title⟩%>}#/%expl3
+\pdfoutline_action:nnn {%<⟨level⟩%>} {%<⟨action⟩%>} {%<⟨title⟩%>}#/%expl3
+\pdfoutline_goto:nee {%<⟨level⟩%>} {%<⟨destination⟩%>} {%<⟨title⟩%>}#/%expl3
+\pdfoutline_goto:neo {%<⟨level⟩%>} {%<⟨destination⟩%>} {%<⟨title⟩%>}#/%expl3
+\pdfoutline_goto:nnn {%<⟨level⟩%>} {%<⟨destination⟩%>} {%<⟨title⟩%>}#/%expl3
+\pdfoutline_id_ref_last:#/%expl3
+\pdfoutline_level_ref_last:#/%expl3
+\pdfoutline_parent_ref:n {%<⟨id⟩%>}#/%expl3
 
 ## documentmetadata-support.ltx
 \documentmetadatasupportversion#S

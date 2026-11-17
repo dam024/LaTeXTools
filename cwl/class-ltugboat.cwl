@@ -1,5 +1,5 @@
 # ltugboat class
-# Matthew Bertucci 2025/10/29 for v2.35
+# Matthew Bertucci 2026/09/16 for v2.39
 
 #include:mflogo
 #include:gettitlestring
@@ -42,6 +42,7 @@ runningoff
 \acro{acronym}
 \address{address%text}
 \AddToResetCommands{code}#*
+\AI
 \allowhyphens#*
 \AllTeX
 \AMS
@@ -215,6 +216,7 @@ runningoff
 \mf
 \MFB
 \midrtitle
+\MiKTeX
 \minutes#*
 \MkIV
 \mp
@@ -343,7 +345,7 @@ runningoff
 \TB
 \tbcode{text%plain}
 \tbcodebreak{text%plain}
-\tbdebug{text}#*
+\TBDebug{text}#*
 \TBdriver#*
 \TBecircacute#*
 \TBEnableRemarks#*
@@ -352,12 +354,13 @@ runningoff
 \tbhurl{URL}#U
 \tbhurlfootnote{URL}#U
 \TBInfo{text}#*
-\tbloggingall#*
+\TBLoggingall#*
 \tbotregister#*
 \tbppkernfoot#*
 \TBremark{text}#*
 \tbsurl{URL}#U
 \tbsurlfootnote{URL}#U
+\tbtablestring#*
 \TBtocsectionfont#*
 \TBunicodeenginefalse#S
 \TBunicodeenginetrue#S
@@ -373,6 +376,7 @@ runningoff
 \TestIffalse#*
 \TestIftrue#*
 \TeXhax
+\TeXLive
 \TeXMaG
 \texorpdfstring{arg1}{arg2}#*
 \textSMC{text}#*
@@ -409,6 +413,7 @@ runningoff
 \tubcaptionleftglue#*
 \tubcentsold#S
 \TUBdefaulteTeX#*
+\tubdisc#*
 \tubdoiprefix#*
 \tubdots
 \TUBedit{text}#*
@@ -421,8 +426,10 @@ runningoff
 \tubjustifiedpar
 \tubline{text}#*
 \tubmakecaptionbox{arg1}{arg2}#*
+\tubmakevmeta#*
 \tubmultipleaffilauthor#*
 \tubmultipleaffilnet#*
+\tubnewline#*
 \tubomitdoioptionfalse#*
 \tubomitdoioptiontrue#*
 \tubraggedfoot#*

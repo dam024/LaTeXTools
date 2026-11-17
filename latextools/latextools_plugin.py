@@ -62,8 +62,6 @@ class LaTeXToolsPluginException(Exception):
     Base class for plugin-related exceptions
     """
 
-    pass
-
 
 class NoSuchPluginException(LaTeXToolsPluginException):
     """
@@ -74,16 +72,12 @@ class NoSuchPluginException(LaTeXToolsPluginException):
     information e.g., how to properly configure a module for an extension point
     """
 
-    pass
-
 
 class InvalidPluginException(LaTeXToolsPluginException):
     """
     Exception raised if an attempt is made to register a plugin that is not a
     subclass of LaTeXToolsPlugin.
     """
-
-    pass
 
 
 class LaTeXToolsPluginRegistry(dict):

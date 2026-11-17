@@ -1,14 +1,12 @@
 from __future__ import annotations
 
 from ...latextools.utils.external_command import external_command
-
 from .base_viewer import BaseViewer
 
 __all__ = ["OkularViewer"]
 
 
 class OkularViewer(BaseViewer):
-
     @classmethod
     def _run_okular(cls, locator=None, **kwargs):
         keep_focus: bool = kwargs.get("keep_focus", True)

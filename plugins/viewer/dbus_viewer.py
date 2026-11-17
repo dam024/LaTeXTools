@@ -1,19 +1,20 @@
 from __future__ import annotations
-from pathlib import Path
-from typing import cast
+
 import shutil
 import stat
+from pathlib import Path
+from typing import cast
+
 import sublime
 import sublime_plugin
 
 from ...latextools.utils import sublime_utils as st_utils
-from ...latextools.utils.external_command import external_command, check_call, Popen
+from ...latextools.utils.external_command import Popen, check_call, external_command
 from ...latextools.utils.logging import logger
 from ...latextools.utils.settings import get_setting
-
 from .base_viewer import BaseViewer
 
-__all__ = ["LatextoolsDbusViewerListener", "EvinceViewer", "XreaderViewer"]
+__all__ = ["Evince2Viewer", "EvinceViewer", "LatextoolsDbusViewerListener", "XreaderViewer"]
 
 
 # let registered processes survife module reloading
@@ -185,7 +186,7 @@ class BaseDBusViewer(BaseViewer):
         logger.debug(f"Start {cls._app_command} monitoring process.")
 
         # Terminate existing monitor process
-        old_process = cls.terminate_monitor_process(pdf_file)
+        cls.terminate_monitor_process(pdf_file)
         # Run and replace the monitor process
         _monitor_processes[pdf_file] = cls.run_sync(
             pdf_file,
@@ -264,10 +265,13 @@ class BaseDBusViewer(BaseViewer):
 class EvinceViewer(BaseDBusViewer):
     _app_dbus_name = "org.gnome.evince"
     _app_command = shutil.which("evince")
-    if _app_command is not None:
-        if Path(_app_command).resolve().name == "xreader":
-            logger.info("On this platform, Xreader provides Evince, will use Xreader DBus name")
-            _app_dbus_name = "org.x.reader"
+    if _app_command is not None and Path(_app_command).resolve().name == "xreader":
+        logger.info("On this platform, Xreader provides Evince, will use Xreader DBus name")
+        _app_dbus_name = "org.x.reader"
+
+
+class Evince2Viewer(BaseDBusViewer):
+    _app_dbus_name = "org.gnome.Evince"
 
 
 class XreaderViewer(BaseDBusViewer):

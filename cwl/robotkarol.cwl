@@ -1,0 +1,224 @@
+# robotkarol.cwl — Autovervollständigung für robotkarol.sty v3.10
+#include:tikz
+#include:listings
+#include:struktex
+#include:graphicx
+#include:fontspec
+#include:tikzlibrarypatterns.meta
+
+#keyvals:\karolsetup#c
+feldbreite=%<Länge%>
+druck#true,false
+bodenfarbe=%<Farbe%>
+ziegelfarbe=%<Farbe%>
+ziegelkoerperfarbe=%<Farbe%>
+ziegelkantenfarbe=%<Farbe%>
+markenfarbe=%<Farbe%>
+quaderfarbe=%<Farbe%>
+gitterfarbe=%<Farbe%>
+hervorfarbe=%<Farbe%>
+figur=#karol,emma
+schrift=#karol,dokument
+textschrift=%<Schriftumschaltung%>
+codeschrift=%<Schriftumschaltung%>
+befehlfarbe=%<Farbe%>
+schleifenfarbe=%<Farbe%>
+verzweigungfarbe=%<Farbe%>
+bedingungfarbe=%<Farbe%>
+anweisungfarbe=%<Farbe%>
+kommentarfarbe=%<Farbe%>
+hutfarbe=%<Farbe%>
+#endkeyvals
+
+\karolsetup{keyvals}
+# Figur der Welten: karol (Vorgabe) oder emma (langes Haar + Blume)
+\karolfigur{%<karol,emma%>}
+
+# --- Schriften (v3.6) ---
+# Vorgabe: Noto Sans + Hack wie in Robot Karol Online.  Mit der
+# Paketoption schrift=dokument benutzt das Paket \sffamily und \ttfamily.
+# --- Druckmodus (v3.7) ---
+# druck stellt alle Ansichten auf tonersparende Graustufen um; zur
+# Laufzeit (auch nur in einer Gruppe) mit \karolsetup{druck=true}.
+# --- Verweise (v3.7) ---
+# hyperref=false unterdrueckt das Laden von hyperref; \karolonline
+# setzt dann denselben Text ohne Verweis.
+#keyvals:\usepackage/robotkarol#c
+schrift=#karol,dokument
+druck#true,false
+hyperref#true,false
+#endkeyvals
+
+# Verweis auf eine Aufgabe in Robot Karol Online: \karolonline{2t7t}
+# setzt karol.arrrg.de/#2t7t und verlinkt https://karol.arrrg.de/#2t7t
+\karolonline{%<Aufgabencode%>}
+\karolschrift
+\karolcodeschrift
+
+#keyvals:\karolzeile#c,\karolgitter#c,\karolpaar#c
+skalierung=%<Faktor%>
+nummern=#true,false
+hinweis=%<Text%>
+titel=%<Text%>
+hervorheben=%<Feldliste ab 1%>
+rahmen=#true,false
+hoehe=%<Ziegellagen%>
+#endkeyvals
+
+# Weltzeichen: > < ^ v Karol | . leer | Z Ziegel | 1–9 Stapel | M Marke
+# Q Quader | {…} mehrere Objekte auf einem Feld, z. B. {M>} {2M} {3>}
+\karolzeile{%<Weltstring%>}
+\karolzeile[keyvals]{%<Weltstring%>}
+\karolgitter{%<Feldanzahl%>}
+\karolgitter[keyvals]{%<Feldanzahl%>}
+\karolpaar{%<vorher%>}{%<nachher%>}
+\karolpaar[keyvals]{%<vorher%>}{%<nachher%>}
+\karolpaar[keyvals][keyvals]{%<vorher%>}{%<nachher%>}
+\karollegende
+\karollegendenitem{%<Weltstring%>}{%<Beschriftung%>}
+\karollegendentrenner
+\karolzustandslegende
+\karolzustandslegendenitem{%<Objektbefehle%>}{%<Beschriftung%>}
+
+#keyvals:\begin{karolbloecke}#c
+skalierung=%<Faktor%>
+#endkeyvals
+
+\begin{karolbloecke}
+\end{karolbloecke}
+\begin{karolbloecke}[keyvals]
+\end{karolbloecke}
+
+\bbefehl{%<Befehl%>}
+\bbefehl[%<Anzahl%>]{%<Befehl%>}
+\bwiederholemal{%<Anzahl%>}{%<Blöcke%>}
+\bwiederholesolange{%<Bedingung%>}{%<Blöcke%>}
+\bwiederholesolange[%<Anzahl%>]{%<Bedingung%>}{%<Blöcke%>}
+\bwiederholeimmer{%<Blöcke%>}
+\bwenndann{%<Bedingung%>}{%<Blöcke%>}
+\bwenndann[%<Anzahl%>]{%<Bedingung%>}{%<Blöcke%>}
+\bwenndannsonst{%<Bedingung%>}{%<dann-Blöcke%>}{%<sonst-Blöcke%>}
+\bwenndannsonst[%<Anzahl%>]{%<Bedingung%>}{%<dann-Blöcke%>}{%<sonst-Blöcke%>}
+\bluecke
+\bluecke[%<Breite%>]
+\bbedingung{%<Bedingung%>}
+# Zahlenpille wie IstZiegel(2) in Robot Karol Online
+\bbedingung[%<Anzahl%>]{%<Bedingung%>}
+# Himmelsrichtungen mit Auswahlmenü (Norden/Süden/Osten/Westen)
+\bist{%<Richtung%>}
+\bnichtist{%<Richtung%>}
+\bkommentar{%<Text%>}
+\baufruf{%<Name%>}
+\baufruf[%<Anzahl%>]{%<Name%>}
+\banweisung{%<Name%>}{%<Blöcke%>}
+\bhauptprogramm
+
+# --- Inline-Blöcke für den Fließtext (v3.0) ---
+# Setzen genau einen Block in die laufende Zeile: Schriftgröße und
+# Grundlinie wie der umgebende Text.  Schleifen und Verzweigungen
+# erscheinen inline nur mit ihrem Kopf.
+\ibefehl{%<Befehl%>}
+\ibefehl[%<Anzahl%>]{%<Befehl%>}
+\iaufruf{%<Name%>}
+\iaufruf[%<Anzahl%>]{%<Name%>}
+\ianweisung{%<Name%>}
+\ikommentar{%<Text%>}
+\ihauptprogramm
+\iwiederholemal{%<Anzahl%>}
+\iwiederholesolange{%<Bedingung%>}
+\iwiederholesolange[%<Anzahl%>]{%<Bedingung%>}
+\iwiederholeimmer
+\iwenndann{%<Bedingung%>}
+\iwenndann[%<Anzahl%>]{%<Bedingung%>}
+\isonst
+\ibedingung{%<Bedingung%>}
+\ibedingung[%<Anzahl%>]{%<Bedingung%>}
+\iist{%<Richtung%>}
+\inichtist{%<Richtung%>}
+\iluecke
+\iluecke[%<Breite%>]
+
+# Das optionale Argument nimmt listings-Schlüssel (\lstset), z. B.
+# \begin{karolcode}[numbers=left]
+\begin{karolcode}
+\end{karolcode}
+\begin{karolcode}[options%keyvals]
+\end{karolcode}
+\kb{%<Bezeichner%>}#*
+\kw{%<Schlüsselwort%>}#*
+\leeranweisung
+\stklucke
+\stklucke[%<Breite%>]
+
+# --- karolwelt-Umgebung (v3.0) ---
+\begin{karolwelt}
+\end{karolwelt}
+\begin{karolwelt}[keyvals]
+\end{karolwelt}
+#keyvals:\begin{karolwelt}
+breite=%<Spalten%>
+laenge=%<Zeilen%>
+hoehe=%<Ziegellagen%>
+ansicht=#3d,2d
+zustand=#beides,start,ziel
+auftrag=#keiner,aufbauen,aufraeumen,aufräumen
+nummern=#true,false
+rahmen
+hervorheben=%<x/y-Liste%>
+skalierung=%<Faktor%>
+titel=%<Text%>
+hinweis=%<Text%>
+#endkeyvals
+\karol[keyvals]
+\ziegel[keyvals]
+\marke[keyvals]
+\quader[keyvals]
+\wand[keyvals]
+#keyvals:\karol,\ziegel,\marke,\quader,\wand
+x=%<Spalte%>
+y=%<Zeile%>
+richtung=#osten,westen,norden,sueden,rechts,links,vorn,vorne,unten,hinten,oben
+anzahl=%<Ziegel%>
+farbe=%<Farbe%>
+bisx=%<Spalte%>
+bisy=%<Zeile%>
+bisX=%<Spalte%>
+bisY=%<Zeile%>
+# Start- und Zielzustand (v3.9).  Die Schalter nehmen auch =true|false.
+# neu/hinlegen/setzen wirken wie ziel, weg/aufheben/loeschen wie start.
+start
+ziel
+neu
+weg
+hinlegen
+aufheben
+setzen
+loeschen
+startanzahl=%<Ziegel%>
+zielanzahl=%<Ziegel%>
+start-anzahl=%<Ziegel%>
+ziel-anzahl=%<Ziegel%>
+#endkeyvals
+
+# --- karolweltpaar: Start und Ziel nebeneinander (v3.9) ---
+\begin{karolweltpaar}
+\end{karolweltpaar}
+\begin{karolweltpaar}[keyvals]
+\end{karolweltpaar}
+#keyvals:\begin{karolweltpaar}
+links=#start,ziel,beides
+rechts=#start,ziel,beides
+trenner=%<Text%>
+titellinks=%<Text%>
+titelrechts=%<Text%>
+breite=%<Spalten%>
+laenge=%<Zeilen%>
+hoehe=%<Ziegellagen%>
+ansicht=#3d,2d
+auftrag=#keiner,aufbauen,aufraeumen,aufräumen
+nummern#true,false
+rahmen
+hervorheben=%<x/y-Liste%>
+skalierung=%<Faktor%>
+hinweis=%<Text%>
+#endkeyvals

@@ -1,7 +1,8 @@
 import os
-import sublime
 import sys
 import traceback
+
+import sublime
 
 try:
     import winreg
@@ -12,14 +13,12 @@ except ImportError:
 from ...latextools.utils.external_command import external_command
 from ...latextools.utils.logging import logger
 from ...latextools.utils.settings import get_setting
-
 from .base_viewer import BaseViewer
 
 __all__ = ["SumatraViewer"]
 
 
 class SumatraViewer(BaseViewer):
-
     @classmethod
     def _find_sumatra_exe(cls):
         if hasattr(SumatraViewer, "_sumatra_exe"):
@@ -35,7 +34,7 @@ class SumatraViewer(BaseViewer):
             ) as hndl:
                 SumatraViewer._sumatra_exe = winreg.QueryValue(hndl, "")
                 return SumatraViewer._sumatra_exe
-        except WindowsError:
+        except OSError:
             pass
 
         paths = [

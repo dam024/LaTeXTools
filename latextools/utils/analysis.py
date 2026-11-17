@@ -1,15 +1,13 @@
-import copy
 import itertools
 import os
-import regex
-import sublime
 import traceback
-
 from collections.abc import Iterable
 from functools import partial
 
-from ...vendor.frozendict import frozendict
+import regex
+import sublime
 
+from ...vendor.frozendict import frozendict
 from . import utils
 from .cache import cache_local
 from .logging import logger
@@ -52,7 +50,8 @@ _COMMAND_ARG_NAMES = (
     "args3",
 )
 _RE_COMMAND = regex.compile(
-    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)" +  # The initial command
+    r"\\(?P<command>[A-Za-z]+)(?P<star>\*?)"  # The initial command
+    +
     # build the rest from the command arg names
     "\n".join(
         r"""
@@ -252,7 +251,13 @@ class Analysis:
         elif callable(how):
             return (c for c in self._commands(flags) if how(c))
 
-        raise Exception(f"Unsupported filter type: {type(how)}")
+        raise TypeError(f"Unsupported filter type: {type(how)}")
+
+    def next_command(self, command):
+        i = self._all_commands.index(command)
+        if 0 <= i < len(self._all_commands) - 1:
+            return self._all_commands[i + 1]
+        return None
 
     def graphics_paths(self):
         if self._graphics_path is None:
@@ -271,9 +276,11 @@ class Analysis:
         return self._graphics_path
 
     def _add_command(self, command):
+        assert isinstance(self._all_commands, list)
         self._all_commands.append(command)
 
     def _extend_commands(self, commands):
+        assert isinstance(self._all_commands, list)
         self._all_commands.extend(commands)
 
     def _build_cache(self, flags):
@@ -357,7 +364,7 @@ def _generate_entries(m, file_name, offset=0):
         }
     )
     # insert the regions of the matches into the entry dict
-    for k in m.groupdict().keys():
+    for k in m.groupdict():
         region_name = k + "_region"
         reg = m.regs[m.re.groupindex[k]]
         entryDict[region_name] = sublime.Region(offset + reg[0], offset + reg[1])
@@ -411,11 +418,13 @@ def analyze_document(tex_root):
 def _analyze_tex_file(
     tex_root,
     file_name=None,
-    process_file_stack=[],
+    process_file_stack=None,
     ana=None,
     import_path=None,
     only_preamble=False,
 ):
+    if process_file_stack is None:
+        process_file_stack = []
     # init ana and the file name
     if not ana:
         ana = Analysis(tex_root)
@@ -508,7 +517,6 @@ def _analyze_tex_file(
                         return ana
 
         elif cmd == "documentclass":
-
             # subfile support:
             # if we are not in the root file (i.e. not call from included files)
             # and have the command \documentclass[main.tex]{subfiles}
@@ -537,7 +545,7 @@ def _analyze_tex_file(
             elif args is not None:
                 fn = decode_path(os.path.splitext(args.strip('"'))[0], base_path)
                 if fn:
-                    for ext in (".cls", ):
+                    for ext in (".cls",):
                         open_file = fn + ext
                         if os.path.isfile(open_file):
                             process_file_stack.append(file_name)

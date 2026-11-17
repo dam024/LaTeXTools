@@ -1,16 +1,16 @@
 import os
 import re
+
 import sublime
 
 from .latex_cwl_completions import get_cwl_env_completions
 from .latex_fill_all import LatexFillAllPlugin
-
 from .utils import analysis
 from .utils.settings import get_setting
 from .utils.tex_directives import get_tex_root
 from .utils.sublime_utils import move_cursor_relative, move_cursor_vertical
 
-BEGIN_END_BEFORE_REGEX = re.compile(r"([^{}\[\]]*)\{(?:\][^{}\[\]]*\[)?(?:nigeb|dne)\\")
+BEGIN_END_BEFORE_REGEX = re.compile(r"([^{}\[\]]*)\{(?:\][^]]*\[)*(?:nigeb|dne)\\")
 """
 regex pattern to detect that the cursor is predecended by a \\begin{
 """

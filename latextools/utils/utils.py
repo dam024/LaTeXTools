@@ -114,12 +114,6 @@ class TimeoutError(Exception):
     pass
 
 
-try:
-    __sentinel__
-except NameError:
-    __sentinel__ = object()
-
-
 class ThreadPool:
     """A relatively simple ThreadPool designed to maintain a number of thread
     workers
@@ -156,7 +150,9 @@ class ThreadPool:
         self._supervisor.start()
 
     # - Public API
-    def apply_async(self, func, args=(), kwargs={}):
+    def apply_async(self, func, args=(), kwargs=None):
+        if kwargs is None:
+            kwargs = {}
         job = next(self._job_counter)
         self._task_queue.put((job, (func, args, kwargs)))
         return _ThreadPoolResult(job, self._result_cache)
@@ -228,9 +224,8 @@ class ThreadPool:
 
 
 class _ThreadPoolWorker(threading.Thread):
-
     def __init__(self, task_queue, result_queue, *args, **kwargs):
-        super(_ThreadPoolWorker, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.daemon = True
         self._task_queue = task_queue
         self._result_queue = result_queue
@@ -258,7 +253,6 @@ class _ThreadPoolWorker(threading.Thread):
 
 
 class _ThreadPoolResult:
-
     def __init__(self, job, result_cache):
         self._ready = threading.Event()
         self._value = None
